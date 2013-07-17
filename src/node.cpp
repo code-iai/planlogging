@@ -97,7 +97,7 @@ public:
 	itChild++) {
       CTask *tskChild = *itChild;
       
-      strReturn += "  " + tskChild->stringID() + " [shape=Mrecord, label=\"|{" + tskChild->name() + tskChild->stringParams() + "}|\"];\n";
+      strReturn += "  " + tskChild->stringID() + " [shape=Mrecord, label=\"{" + tskChild->name() + tskChild->stringParams() + "}\"];\n";
     }
     
     // Connect all lines to the children
