@@ -64,10 +64,6 @@ public:
       strResult += "|{" + (*itPair).first + " | " + (*itPair).second + "}";
     }
     
-    if(strResult != "") {
-      strResult += "|";
-    }
-    
     return strResult;
   }
   
@@ -88,7 +84,7 @@ public:
       // subsequent nodes have been introduces by someone else above
       // them.
       
-      strReturn += "  " + strID + " [shape=doublecircle, label=\"" + m_strName + this->stringParams() + "\"];\n";
+      strReturn += "  " + strID + " [shape=doublecircle, style=\"bold\", label=\"" + m_strName + this->stringParams() + "\"];\n";
     }
     
     // Introduce all children
@@ -227,6 +223,10 @@ bool startTaskCB(planlogger::StartTask::Request &req, planlogger::StartTask::Res
     string strValue = string(req.param_values[nI]);
     strValue = replaceString(strValue, "\"", "\\\"");
     strValue = replaceString(strValue, "\n", "\\n");
+    strValue = replaceString(strValue, "<", "\\<");
+    strValue = replaceString(strValue, ">", "\\>");
+    strValue = replaceString(strValue, "{", "\\{");
+    strValue = replaceString(strValue, "}", "\\}");
     
     pair<string, string> prStrings = make_pair(strName, strValue);
     lstParameters.push_back(prStrings);
