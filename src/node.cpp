@@ -266,6 +266,8 @@ bool extractTaskCB(planlogger::ExtractTask::Request &req, planlogger::ExtractTas
     myfile << strFileContents;
     myfile.close();
     
+    cout << "Extracted .dot file to: " << req.filename << endl;
+    
     return true;
   }
   
