@@ -54,6 +54,7 @@ bool CPlanLoggerROS::serviceCallbackStartNode(designator_integration_msgs::Desig
     CPlanNode *pnStart = this->addPlanNode(desigRequest->stringValue("_name"));
     pnStart->setDetailLevel(nDetailLevel);
     pnStart->setDescription(desigRequest->children());
+    pnStart->setSource(desigRequest->stringValue("_source"));
     
     CDesignator *desigResponse = new CDesignator();
     desigResponse->setType(ACTION);

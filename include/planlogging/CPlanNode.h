@@ -8,6 +8,9 @@
 // Other
 #include <designators/CKeyValuePair.h>
 
+// Private
+#include <planlogging/CImage.h>
+
 using namespace std;
 
 
@@ -20,6 +23,8 @@ class CPlanNode {
   CPlanNode *m_pnParent;
   bool m_bSuccess;
   int m_nDetailLevel;
+  string m_strSource;
+  list<CImage*> m_lstImages;
   
   void clearSubnodes();
   void setParent(CPlanNode *pnParent);
@@ -30,6 +35,13 @@ class CPlanNode {
   CPlanNode();
   CPlanNode(int nID, string strName);
   ~CPlanNode();
+  
+  void setSource(string strSource);
+  string source();
+  
+  void addImage(string strOrigin, string strFilename);
+  list<CImage*> images();
+  void clearImages();
   
   void setSuccess(bool bSuccess);
   bool success();

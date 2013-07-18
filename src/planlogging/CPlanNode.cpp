@@ -17,6 +17,7 @@ CPlanNode::CPlanNode(int nID, string strName) {
 
 CPlanNode::~CPlanNode() {
   this->clearSubnodes();
+  this->clearImages();
 }
 
 void CPlanNode::init() {
@@ -109,4 +110,33 @@ void CPlanNode::setDetailLevel(int nDetailLevel) {
 
 int CPlanNode::detailLevel() {
   return m_nDetailLevel;
+}
+
+void CPlanNode::setSource(string strSource) {
+  m_strSource = strSource;
+}
+
+string CPlanNode::source() {
+  return m_strSource;
+}
+
+void CPlanNode::addImage(string strOrigin, string strFilename) {
+  CImage *imgNew = new CImage(strOrigin, strFilename);
+  m_lstImages.push_back(imgNew);
+}
+
+list<CImage*> CPlanNode::images() {
+  return m_lstImages;
+}
+
+void CPlanNode::clearImages() {
+  for(list<CImage*>::iterator itImage = m_lstImages.begin();
+      itImage != m_lstImages.end();
+      itImage++) {
+    CImage *imgCurrent = *itImage;
+    
+    delete imgCurrent;
+  }
+  
+  m_lstImages.clear();
 }
