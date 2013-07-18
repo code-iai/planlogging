@@ -27,12 +27,9 @@ find_package(catkin REQUIRED COMPONENTS roscpp message_generation designator_int
 # )
 
 ## Generate services in the 'srv' folder
-add_service_files(
-  FILES
-  StartTask.srv
-  StopTask.srv
-  ExtractTask.srv
-)
+# add_service_files(
+#   FILES
+# )
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
@@ -82,8 +79,6 @@ add_dependencies(PlanLogging designator_integration_generate_messages_cpp messag
 add_dependencies(PlanLoggingROS PlanLogging)
 
 ## Declare a cpp executable
-add_executable(planlogger_node src/node.cpp)
-
 add_executable(planlogger src/main.cpp)
 add_dependencies(planlogger designator_integration_generate_messages_cpp PlanLogging PlanLoggingROS)
 
@@ -96,10 +91,6 @@ target_link_libraries(PlanLoggingROS
   ${catkin_LIBRARIES}
   PlanLogging
   DesignatorIntegration
-)
-
-target_link_libraries(planlogger_node
-  ${catkin_LIBRARIES}
 )
 
 target_link_libraries(planlogger
