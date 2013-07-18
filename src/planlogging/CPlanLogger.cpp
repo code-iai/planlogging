@@ -153,16 +153,19 @@ string CPlanLogger::generateDotDiGraph(CPlanNode *pnCurrent, int &nIndex, string
     }
   
     // Introduce yourself and your affiliation
-    strReturnvalue += "  " + strID + " [shape=Mrecord, label=\"{" + pnCurrent->name() + strParameters + "}\"];\n";
-    
     string strColor = "black";
+    string strBackgroundColor = "white";
     if(m_bUseColor) {
       if(pnCurrent->success()) {
 	strColor = "green";
+	strBackgroundColor = "#ddffdd";
       } else {
 	strColor = "red";
+	strBackgroundColor = "#ffdddd";
       }
     }
+    
+    strReturnvalue += "  " + strID + " [shape=Mrecord, style=filled, fillcolor=\"" + strBackgroundColor + "\", label=\"{" + pnCurrent->name() + strParameters + "}\"];\n";
     
     strReturnvalue += "  edge [color=" + strColor + "];\n";
     strReturnvalue += "  " + strParentID + " -> " + strID + ";\n";
