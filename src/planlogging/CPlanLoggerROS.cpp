@@ -104,7 +104,30 @@ bool CPlanLoggerROS::serviceCallbackStopNode(designator_integration_msgs::Design
 }
 
 bool CPlanLoggerROS::serviceCallbackAlterNode(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-  return false;
+bool bReturnvalue = false;
+  CDesignator *desigRequest = new CDesignator(req.request.designator);
+  
+  if(desigRequest) {
+    string strCommand = desigRequest->stringValue("command");
+    
+    if(strCommand == "ADD-IMAGE") {
+      string strImageOrigin = desigRequest->stringValue("origin");
+      string strImageFilename = desigRequest->stringValue("filename");
+      
+      if(this->activeNode()) {
+	this->activeNode()->addImage(strImageOrigin, strImageFilename);
+	ROS_INFO("Added image '%s' (from '%s') to active node (id %d).", strImageFilename.c_str(), strImageOrigin.c_str(), this->activeNode()->id());
+	
+	bReturnvalue = true;
+      } else {
+	ROS_WARN("No node context available. Cannot add image while on top-level.");
+      }
+    } else {
+      ROS_WARN("Unknown alter command: '%s'", strCommand.c_str());
+    }
+  }
+  
+  return bReturnvalue;
 }
 
 bool CPlanLoggerROS::serviceCallbackControl(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
