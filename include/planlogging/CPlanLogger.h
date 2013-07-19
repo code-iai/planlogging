@@ -21,7 +21,9 @@ class CPlanLogger {
   bool m_bUseColor;
   
   string replaceString(string strOriginal, string strReplaceWhat, string strReplaceBy);
+  
   string generateDotDiGraph(CPlanNode *pnCurrent, int &nIndex, string strParentID, bool bSuccesses, bool bFails, int nMaxDetailLevel);
+  string generateOWL(CPlanNode *pnCurrent, int &nIndex, string strParentID, bool bSuccesses, bool bFails, int nMaxDetailLevel);
   
  protected:
   void setNodeAsActive(CPlanNode *pnActive);
@@ -39,6 +41,7 @@ class CPlanLogger {
   void setUseColor(bool bUseColor);
   
   string generateDotDiGraph(bool bSuccesses, bool bFails, int nMaxDetailLevel);
+  string generateOWL(bool bSuccesses, bool bFails, int nMaxDetailLevel);
 };
 
 

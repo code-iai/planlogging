@@ -147,6 +147,7 @@ string CPlanLogger::generateDotDiGraph(CPlanNode *pnCurrent, int &nIndex, string
 	strValue = this->replaceString(strValue, "<", "\\<");
 	strValue = this->replaceString(strValue, ">", "\\>");
 	strValue = this->replaceString(strValue, "\"", "\\\"");
+	strValue = this->replaceString(strValue, "|", "\\|/");
     
 	strParameters += "|{" + ckvpCurrent->key() + " | " + strValue + "}";
       }
@@ -177,6 +178,108 @@ string CPlanLogger::generateDotDiGraph(CPlanNode *pnCurrent, int &nIndex, string
       CPlanNode *pnNode = *itNode;
     
       strReturnvalue += this->generateDotDiGraph(pnNode, nIndex, strID, bSuccesses, bFails, nMaxDetailLevel);
+    }
+    
+    // Draw associated images and connect them to the graph
+    list<CImage*> lstImages = pnCurrent->images();
+    if(lstImages.size() > 0) {
+      strReturnvalue += "  edge [color=black];\n";
+      int nImageIndex = 0;
+      
+      for(list<CImage*>::iterator itImage = lstImages.begin();
+	  itImage != lstImages.end();
+	  itImage++) {
+	CImage *imgImage = *itImage;
+	
+	stringstream sts;
+	sts << strID;
+	sts << "_image";
+	sts << nImageIndex;
+	string strImageID = sts.str();
+	
+	strReturnvalue += "  " + strImageID + " [shape=box, label=\"" + imgImage->origin() + "\", width=\"6cm\", height=\"6cm\", fixedsize=true, imagescale=true, image=\"" + imgImage->filename() + "\"];\n";
+	strReturnvalue += "  " + strImageID + " -> " + strID + ";\n";
+	
+	nImageIndex++;
+      }
+    }
+  }
+  
+  return strReturnvalue;
+}
+
+string CPlanLogger::generateOWL(bool bSuccesses, bool bFails, int nMaxDetailLevel) {
+  string strReturnvalue = "<owl:some-event-file>\n";
+  int nIndex = 1;
+  
+  strReturnvalue += "  <owl:namedEvent name=\"event0\">\n";
+  strReturnvalue += "    <!-- Some root event properties here -->\n";
+  strReturnvalue += "  </owl:namedEvent>\n\n";
+  
+  for(list<CPlanNode*>::iterator itNode = m_lstPlanNodes.begin();
+      itNode != m_lstPlanNodes.end();
+      itNode++) {
+    CPlanNode *pnCurrent = *itNode;
+    
+    strReturnvalue += this->generateOWL(pnCurrent, nIndex, "event0", bSuccesses, bFails, nMaxDetailLevel);
+  }
+  
+  strReturnvalue += "</owl:some-event-file>\n";
+  
+  return strReturnvalue;
+}
+
+string CPlanLogger::generateOWL(CPlanNode *pnCurrent, int &nIndex, string strParentID, bool bSuccesses, bool bFails, int nMaxDetailLevel) {
+  string strReturnvalue = "";
+  
+  if(((bSuccesses && pnCurrent->success()) || (bFails && !pnCurrent->success())) && (pnCurrent->detailLevel() <= nMaxDetailLevel)) {
+    stringstream sts;
+    sts << "event";
+    sts << nIndex++;
+    string strID = sts.str();
+  
+    // Prepare the parameter string
+    string strParameters = "";
+    list<CKeyValuePair*> lstDescription = pnCurrent->description();
+  
+    for(list<CKeyValuePair*>::iterator itPair = lstDescription.begin();
+	itPair != lstDescription.end();
+	itPair++) {
+      CKeyValuePair *ckvpCurrent = *itPair;
+    
+      if(ckvpCurrent->key().at(0) != '_') {
+	string strValue = "?";
+	if(ckvpCurrent->type() == STRING) {
+	  strValue = ckvpCurrent->stringValue();
+	} else if(ckvpCurrent->type() == FLOAT) {
+	  stringstream sts;
+	  sts << ckvpCurrent->floatValue();
+	  strValue = sts.str();
+	}
+    
+	strValue = this->replaceString(strValue, "\n", "\\n");
+	strValue = this->replaceString(strValue, "<", "\\<");
+	strValue = this->replaceString(strValue, ">", "\\>");
+	strValue = this->replaceString(strValue, "\"", "\\\"");
+	
+	strParameters += "    <owl:" + ckvpCurrent->key() + ">" + strValue + "</owl:" + ckvpCurrent->key() + ">\n";
+      }
+    }
+    
+    // Introduce yourself and your affiliation
+    strReturnvalue += "  <owl:namedEvent name=\"" + strID + "\">\n";
+    strReturnvalue += strParameters;
+    strReturnvalue += "    <owl:parentEvent>" + strParentID + "</owl:parentEvent>\n";
+    strReturnvalue += "    <owl:label>" + pnCurrent->name() + "</owl:label>\n";
+    strReturnvalue += "  </owl:namedEvent>\n\n";
+    
+    list<CPlanNode*> lstSubnodes = pnCurrent->subnodes();
+    for(list<CPlanNode*>::iterator itNode = lstSubnodes.begin();
+	itNode != lstSubnodes.end();
+	itNode++) {
+      CPlanNode *pnNode = *itNode;
+    
+      strReturnvalue += this->generateOWL(pnNode, nIndex, strID, bSuccesses, bFails, nMaxDetailLevel);
     }
   }
   

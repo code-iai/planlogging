@@ -171,6 +171,35 @@ bool CPlanLoggerROS::serviceCallbackControl(designator_integration_msgs::Designa
 	  
 	  bReturnvalue = true;
 	}
+      } else if(strFormat == "OWL") {
+	string strFilename = desigRequest->stringValue("filename");
+	
+	if(strFilename != "") {
+	  int nMaxDetailLevel = (int)desigRequest->floatValue("max-detail-level");
+	  int nSuccesses = (int)desigRequest->floatValue("show-successes");
+	  int nFails = (int)desigRequest->floatValue("show-fails");
+	  bool bSuccesses = (nSuccesses == 1 ? true : false);
+	  bool bFails = (nFails == 1 ? true : false);
+	  
+	  string strContents = this->generateOWL(bSuccesses, bFails, nMaxDetailLevel);
+	  
+	  ofstream myfile;
+	  myfile.open(strFilename.c_str());
+	  myfile << strContents;
+	  myfile.close();
+	  
+	  ROS_INFO("Extracted plan nodes to .owl in file '%s'.", strFilename.c_str());
+	  ROS_INFO("Options:");
+	  if(bSuccesses) {
+	    ROS_INFO(" - show successes = yes");
+	  }
+	  
+	  if(bFails) {
+	    ROS_INFO(" - show fails = yes");
+	  }
+	  
+	  bReturnvalue = true;
+	}
       } else {
 	ROS_WARN("Unknown output format: '%s'", strFormat.c_str());
       }
