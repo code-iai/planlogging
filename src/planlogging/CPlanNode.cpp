@@ -18,6 +18,7 @@ CPlanNode::CPlanNode(int nID, string strName) {
 CPlanNode::~CPlanNode() {
   this->clearSubnodes();
   this->clearImages();
+  this->clearObjects();
 }
 
 void CPlanNode::init() {
@@ -139,4 +140,25 @@ void CPlanNode::clearImages() {
   }
   
   m_lstImages.clear();
+}
+
+void CPlanNode::addObject(list<CKeyValuePair*> lstDescription) {
+  CObject *objNew = new CObject(lstDescription);
+  m_lstObjects.push_back(objNew);
+}
+
+list<CObject*> CPlanNode::objects() {
+  return m_lstObjects;
+}
+
+void CPlanNode::clearObjects() {
+  for(list<CObject*>::iterator itObject = m_lstObjects.begin();
+      itObject != m_lstObjects.end();
+      itObject++) {
+    CObject *objCurrent = *itObject;
+    
+    delete objCurrent;
+  }
+  
+  m_lstObjects.clear();
 }

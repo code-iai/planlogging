@@ -10,6 +10,7 @@
 
 // Private
 #include <planlogging/CImage.h>
+#include <planlogging/CObject.h>
 
 using namespace std;
 
@@ -25,12 +26,16 @@ class CPlanNode {
   int m_nDetailLevel;
   string m_strSource;
   list<CImage*> m_lstImages;
+  list<CObject*> m_lstObjects;
   
+  void clearImages();
+  void clearObjects();
   void clearSubnodes();
+  
   void setParent(CPlanNode *pnParent);
   
   void init();
-  
+
  public:
   CPlanNode();
   CPlanNode(int nID, string strName);
@@ -41,7 +46,9 @@ class CPlanNode {
   
   void addImage(string strOrigin, string strFilename);
   list<CImage*> images();
-  void clearImages();
+  
+  void addObject(list<CKeyValuePair*> lstDescription);
+  list<CObject*> objects();
   
   void setSuccess(bool bSuccess);
   bool success();

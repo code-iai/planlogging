@@ -203,6 +203,30 @@ string CPlanLogger::generateDotDiGraph(CPlanNode *pnCurrent, int &nIndex, string
 	nImageIndex++;
       }
     }
+    
+    // Insert associated objects and connect them to the graph
+    list<CObject*> lstObjects = pnCurrent->objects();
+    if(lstObjects.size() > 0) {
+      strReturnvalue += "  edge [color=black];\n";
+      int nObjectIndex = 0;
+      
+      for(list<CObject*>::iterator itObject = lstObjects.begin();
+	  itObject != lstObjects.end();
+	  itObject++) {
+	CObject *objObject = *itObject;
+	
+	stringstream sts;
+	sts << strID;
+	sts << "_object";
+	sts << nObjectIndex;
+	string strObjectID = sts.str();
+	
+	strReturnvalue += "  " + strObjectID + " [shape=box, label=\"some object\"];\n";
+	strReturnvalue += "  " + strObjectID + " -> " + strID + ";\n";
+	
+	nObjectIndex++;
+      }
+    }
   }
   
   return strReturnvalue;
