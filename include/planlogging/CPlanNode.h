@@ -18,6 +18,7 @@ using namespace std;
 class CPlanNode {
  private:
   int m_nID;
+  int m_nParentID;
   string m_strName;
   list<CKeyValuePair*> m_lstDescription;
   list<CPlanNode*> m_lstSubnodes;
@@ -58,6 +59,9 @@ class CPlanNode {
   
   void setID(int nID);
   int id();
+  
+  int parentID();
+  
   void setName(string strName);
   string name();
   

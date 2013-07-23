@@ -26,6 +26,8 @@ CPlanNode* CPlanLogger::addPlanNode(string strName) {
     cout << "Adding new plan subnode with ID " << nID << endl;
   }
   
+  m_lstNodeList.push_back(pnNew);
+  
   cout << "The new node's name is '" << strName << "'" << endl;
   this->setNodeAsActive(pnNew);
   
@@ -82,6 +84,7 @@ void CPlanLogger::clearPlanNodes() {
   }
   
   m_lstPlanNodes.clear();
+  m_lstNodeList.clear();
   
   cout << "Cleared all nodes from the plan log" << endl;
 }

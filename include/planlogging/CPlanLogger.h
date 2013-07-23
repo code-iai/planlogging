@@ -17,6 +17,7 @@ using namespace std;
 class CPlanLogger {
  private:
   list<CPlanNode*> m_lstPlanNodes;
+  list<CPlanNode*> m_lstNodeList;
   CPlanNode *m_pnActive;
   bool m_bUseColor;
   

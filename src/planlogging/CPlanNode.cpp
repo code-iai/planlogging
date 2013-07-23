@@ -74,11 +74,16 @@ void CPlanNode::addSubnode(CPlanNode *pnAdd) {
 }
 
 void CPlanNode::setParent(CPlanNode *pnParent) {
+  m_nParentID = pnParent->id();
   m_pnParent = pnParent;
 }
 
 CPlanNode *CPlanNode::parent() {
   return m_pnParent;
+}
+
+int CPlanNode::parentID() {
+  return m_nParentID;
 }
 
 void CPlanNode::setDescription(list<CKeyValuePair*> lstDescription) {
