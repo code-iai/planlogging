@@ -396,8 +396,8 @@ pair<string, string> CPlanLogger::generateOWL(CPlanNode *pnCurrent, int &nIndex,
       }
     }
     
-    int nStartTime = 0;
-    int nEndTime = 0;
+    int nStartTime = pnCurrent->startTime();
+    int nEndTime = pnCurrent->endTime();
     
     stringstream stsStartTime;
     stsStartTime << nStartTime;
