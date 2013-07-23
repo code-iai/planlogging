@@ -4,6 +4,8 @@
 CPlanLogger::CPlanLogger() {
   m_pnActive = NULL;
   this->setUseColor(true);
+
+  srand(time(NULL));
 }
 
 CPlanLogger::~CPlanLogger() {
@@ -235,45 +237,146 @@ string CPlanLogger::generateDotDiGraph(CPlanNode *pnCurrent, int &nIndex, string
   return strReturnvalue;
 }
 
+string CPlanLogger::generateRandomIdentifier(string strPrefix, unsigned int unLength) {
+  stringstream sts;
+  sts << strPrefix;
+  
+  for(unsigned int unI = 0; unI < unLength; unI++) {
+    int nRandom;
+    do {
+      nRandom = rand() % 122 + 48;
+    } while(nRandom < 48 ||
+	    (nRandom > 57 && nRandom < 65) ||
+	    (nRandom > 90 && nRandom < 97) ||
+	    nRandom > 122);
+    
+    char cRandom = (char)nRandom;
+    sts << cRandom;
+  }
+  
+  return sts.str();
+}
+
 string CPlanLogger::generateOWL(bool bSuccesses, bool bFails, int nMaxDetailLevel) {
-  string strReturnvalue = "<owl:some-event-file>\n";
+  string strReturnvalue = "<?xml version=\"1.0\"?>\n\n";
   int nIndex = 1;
   
-  strReturnvalue += "  <owl:namedEvent name=\"event0\">\n";
-  strReturnvalue += "    <!-- Some root event properties here -->\n";
-  strReturnvalue += "  </owl:namedEvent>\n\n";
+  string strNamespaceID = this->generateRandomIdentifier("", 8);
+  string strNamespace = "http://ias.cs.tum.edu/kb/namespace-" + strNamespaceID;
+  string strNamespaceEntity = "namespace_" + strNamespaceID;
+  string strNamespaceToken = "namespace-" + strNamespaceID;
+  
+  list< pair<string, string> > lstEntities;
+  lstEntities.push_back(make_pair("owl", "http://www.w3.org/2002/07/owl#"));
+  lstEntities.push_back(make_pair("xsd", "http://www.w3.org/2001/XMLSchema#"));
+  lstEntities.push_back(make_pair("knowrob", "http://ias.cs.tum.edu/kb/knowrob.owl#"));
+  lstEntities.push_back(make_pair("rdfs", "http://www.w3.org/2000/01/rdf-schema#"));
+  lstEntities.push_back(make_pair("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"));
+  lstEntities.push_back(make_pair(strNamespaceToken, strNamespace + "#"));
+  
+  strReturnvalue += "<!DOCTYPE rdf:RDF [\n";
+  for(list< pair<string, string> >::iterator itPair = lstEntities.begin();
+      itPair != lstEntities.end();
+      itPair++) {
+    pair<string, string> prEntity = *itPair;
+    
+    strReturnvalue += "    <!ENTITY " + prEntity.first + " \"" + prEntity.second + "\" >\n";
+  }
+  strReturnvalue += "]>\n\n";
+  
+  strReturnvalue += "<rdf:RDF xmlns=\"" + strNamespace + "#\"\n";
+  strReturnvalue += "     xml:base=\"" + strNamespace + "\"\n";
+  for(list< pair<string, string> >::iterator itPair = lstEntities.begin();
+      itPair != lstEntities.end();
+      itPair++) {
+    pair<string, string> prEntity = *itPair;
+    
+    if(itPair != lstEntities.begin()) {
+      strReturnvalue += "\n";
+    }
+    
+    strReturnvalue += "     xmlns:" + prEntity.first + "=\"" + prEntity.second + "\"";
+  }
+  
+  strReturnvalue += ">\n\n";
+  
+  strReturnvalue += "    <owl:Ontology rdf:about=\"" + strNamespace + "\">\n";
+  strReturnvalue += "        <owl:imports rdf:resource=\"http://ias.cs.tum.edu/kb/knowrob.owl\"/>\n";
+  strReturnvalue += "    </owl:Ontology>\n\n";
+  
+  strReturnvalue += "    <!-- Individuals -->\n\n";
   
   for(list<CPlanNode*>::iterator itNode = m_lstPlanNodes.begin();
       itNode != m_lstPlanNodes.end();
       itNode++) {
     CPlanNode *pnCurrent = *itNode;
     
-    strReturnvalue += this->generateOWL(pnCurrent, nIndex, "event0", bSuccesses, bFails, nMaxDetailLevel);
+    pair<string, string> prChildResult = this->generateOWL(pnCurrent, nIndex, strNamespaceToken, bSuccesses, bFails, nMaxDetailLevel);
+    strReturnvalue += prChildResult.second;
   }
   
-  strReturnvalue += "</owl:some-event-file>\n";
+  strReturnvalue += "    <!-- Timepoint Individuals -->\n\n";
+  
+  list<int> lstTimepoints;
+  list<int> lstPointsPresent;
+  for(list<CPlanNode*>::iterator itNode = m_lstPlanNodes.begin();
+      itNode != m_lstPlanNodes.end();
+      itNode++) {
+    list<int> lstT = (*itNode)->gatherTimePoints();
+    
+    for(list<int>::iterator itT = lstT.begin();
+	itT != lstT.end();
+	itT++) {
+      lstTimepoints.push_back(*itT);
+    }
+  }
+  
+  for(list<int>::iterator itT = lstTimepoints.begin();
+      itT != lstTimepoints.end();
+      itT++) {
+    bool bPresent = false;
+    for(list<int>::iterator itT2 = lstPointsPresent.begin();
+	itT2 != lstPointsPresent.end();
+	itT2++) {
+      if(*itT == *itT2) {
+	bPresent = true;
+	break;
+      }
+    }
+    
+    if(!bPresent) {
+      stringstream sts;
+      sts << *itT;
+      
+      strReturnvalue += "    <owl:NamedIndividual rdf:about=\"&" + strNamespaceToken + ";timepoint_" + sts.str() + "\">\n";
+      strReturnvalue += "        <rdf:type rdf:resource=\"&knowrob;TimePoint\"/>\n";
+      strReturnvalue += "    </owl:NamedIndividual>\n\n";
+      
+      lstPointsPresent.push_back(*itT);
+    }
+  }
+  
+  strReturnvalue += "</rdf:RDF>\n";
   
   return strReturnvalue;
 }
 
-string CPlanLogger::generateOWL(CPlanNode *pnCurrent, int &nIndex, string strParentID, bool bSuccesses, bool bFails, int nMaxDetailLevel) {
+pair<string, string> CPlanLogger::generateOWL(CPlanNode *pnCurrent, int &nIndex, string strParentID, bool bSuccesses, bool bFails, int nMaxDetailLevel) {
   string strReturnvalue = "";
+  string strID = "";
   
   if(((bSuccesses && pnCurrent->success()) || (bFails && !pnCurrent->success())) && (pnCurrent->detailLevel() <= nMaxDetailLevel)) {
-    stringstream sts;
-    sts << "event";
-    sts << nIndex++;
-    string strID = sts.str();
-  
+    strID = this->generateRandomIdentifier("event_", 8);
+    
     // Prepare the parameter string
     string strParameters = "";
     list<CKeyValuePair*> lstDescription = pnCurrent->description();
-  
+    
     for(list<CKeyValuePair*>::iterator itPair = lstDescription.begin();
 	itPair != lstDescription.end();
 	itPair++) {
       CKeyValuePair *ckvpCurrent = *itPair;
-    
+      
       if(ckvpCurrent->key().at(0) != '_') {
 	string strValue = "?";
 	if(ckvpCurrent->type() == STRING) {
@@ -283,34 +386,53 @@ string CPlanLogger::generateOWL(CPlanNode *pnCurrent, int &nIndex, string strPar
 	  sts << ckvpCurrent->floatValue();
 	  strValue = sts.str();
 	}
-    
+	
 	strValue = this->replaceString(strValue, "\n", "\\n");
 	strValue = this->replaceString(strValue, "<", "\\<");
 	strValue = this->replaceString(strValue, ">", "\\>");
 	strValue = this->replaceString(strValue, "\"", "\\\"");
 	
-	strParameters += "    <owl:" + ckvpCurrent->key() + ">" + strValue + "</owl:" + ckvpCurrent->key() + ">\n";
+	// strParameters += "    <owl:namedIndividual rdf:about=" + ckvpCurrent->key() + ">" + strValue + "</owl:" + ckvpCurrent->key() + ">\n";
       }
     }
     
-    // Introduce yourself and your affiliation
-    strReturnvalue += "  <owl:namedEvent name=\"" + strID + "\">\n";
-    strReturnvalue += strParameters;
-    strReturnvalue += "    <owl:parentEvent>" + strParentID + "</owl:parentEvent>\n";
-    strReturnvalue += "    <owl:label>" + pnCurrent->name() + "</owl:label>\n";
-    strReturnvalue += "  </owl:namedEvent>\n\n";
+    int nStartTime = 0;
+    int nEndTime = 0;
+    
+    stringstream stsStartTime;
+    stsStartTime << nStartTime;
+
+    stringstream stsEndTime;
+    stsEndTime << nEndTime;
     
     list<CPlanNode*> lstSubnodes = pnCurrent->subnodes();
+    list<string> lstChildIDs;
     for(list<CPlanNode*>::iterator itNode = lstSubnodes.begin();
 	itNode != lstSubnodes.end();
 	itNode++) {
       CPlanNode *pnNode = *itNode;
-    
-      strReturnvalue += this->generateOWL(pnNode, nIndex, strID, bSuccesses, bFails, nMaxDetailLevel);
+      
+      pair<string, string> prChild = this->generateOWL(pnNode, nIndex, strParentID, bSuccesses, bFails, nMaxDetailLevel);
+      strReturnvalue += prChild.second;
+      lstChildIDs.push_back(prChild.first);
     }
+    
+    // Introduce yourself and your affiliation
+    strReturnvalue += "    <owl:namedIndividual rdf:about=\"&" + strParentID + ";" + strID + "\">\n";
+    strReturnvalue += "        <rdf:type rdf:resource=\"&knowrob;Event\"/>\n";
+    strReturnvalue += "        <knowrob:startTime rdf:resource=\"&" + strParentID + ";timepoint_" + stsStartTime.str() + "\"/>\n";
+    strReturnvalue += "        <knowrob:endTime rdf:resource=\"&" + strParentID + ";timepoint_" + stsEndTime.str() + "\"/>\n";
+
+    for(list<string>::iterator itID = lstChildIDs.begin();
+	itID != lstChildIDs.end();
+	itID++) {
+      strReturnvalue += "        <knowrob:subAction rdf:resource=\"&" + strParentID + ";" + *itID + "\"/>\n";
+    }
+
+    strReturnvalue += "    </owl:namedIndividual>\n\n";
   }
   
-  return strReturnvalue;
+  return make_pair(strID, strReturnvalue);
 }
 
 string CPlanLogger::replaceString(string strOriginal, string strReplaceWhat, string strReplaceBy) {

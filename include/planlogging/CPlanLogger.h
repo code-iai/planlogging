@@ -24,12 +24,14 @@ class CPlanLogger {
   string replaceString(string strOriginal, string strReplaceWhat, string strReplaceBy);
   
   string generateDotDiGraph(CPlanNode *pnCurrent, int &nIndex, string strParentID, bool bSuccesses, bool bFails, int nMaxDetailLevel);
-  string generateOWL(CPlanNode *pnCurrent, int &nIndex, string strParentID, bool bSuccesses, bool bFails, int nMaxDetailLevel);
+  pair<string, string> generateOWL(CPlanNode *pnCurrent, int &nIndex, string strParentID, bool bSuccesses, bool bFails, int nMaxDetailLevel);
   
  protected:
   void setNodeAsActive(CPlanNode *pnActive);
   CPlanNode* activeNode();
-  
+
+  string generateRandomIdentifier(string strPrefix, unsigned int unLength);
+
  public:
   CPlanLogger();
   ~CPlanLogger();

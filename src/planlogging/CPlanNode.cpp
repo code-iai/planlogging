@@ -25,6 +25,8 @@ void CPlanNode::init() {
   m_pnParent= NULL;
   m_bSuccess = true;
   m_nDetailLevel = 0;
+  m_nStartTime = 0;
+  m_nEndTime = 0;
 }
 
 void CPlanNode::clearSubnodes() {
@@ -166,4 +168,41 @@ void CPlanNode::clearObjects() {
   }
   
   m_lstObjects.clear();
+}
+
+void CPlanNode::setStartTime(int nStartTime) {
+  m_nStartTime = nStartTime;
+}
+
+int CPlanNode::startTime() {
+  return m_nStartTime;
+}
+
+void CPlanNode::setEndTime(int nEndTime) {
+  m_nEndTime = nEndTime;
+}
+
+int CPlanNode::endTime() {
+  return m_nEndTime;
+}
+
+list<int> CPlanNode::gatherTimePoints() {
+  list<int> lstTimePoints;
+  
+  lstTimePoints.push_back(m_nStartTime);
+  lstTimePoints.push_back(m_nEndTime);
+  
+  for(list<CPlanNode*>::iterator itNode = m_lstSubnodes.begin();
+      itNode != m_lstSubnodes.end();
+      itNode++) {
+    list<int> lstChildTimePoints = (*itNode)->gatherTimePoints();
+    
+    for(list<int>::iterator itT = lstChildTimePoints.begin();
+	itT != lstChildTimePoints.end();
+	itT++) {
+      lstTimePoints.push_back(*itT);
+    }
+  }
+  
+  return lstTimePoints;
 }

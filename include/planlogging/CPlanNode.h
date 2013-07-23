@@ -19,6 +19,8 @@ class CPlanNode {
  private:
   int m_nID;
   int m_nParentID;
+  int m_nStartTime;
+  int m_nEndTime;
   string m_strName;
   list<CKeyValuePair*> m_lstDescription;
   list<CPlanNode*> m_lstSubnodes;
@@ -73,6 +75,14 @@ class CPlanNode {
   
   void setDescription(list<CKeyValuePair*> lstDescription);
   list<CKeyValuePair*> description();
+  
+  void setStartTime(int nStartTime);
+  int startTime();
+
+  void setEndTime(int nEndTime);
+  int endTime();
+  
+  list<int> gatherTimePoints();
 };
 
 
