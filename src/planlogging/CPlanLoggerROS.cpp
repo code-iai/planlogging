@@ -52,6 +52,8 @@ bool CPlanLoggerROS::serviceCallbackStartNode(designator_integration_msgs::Desig
     ROS_INFO("Received start node designator of type %s (detail-level: %d).",
 	     strDesigType.c_str(), nDetailLevel);
     CPlanNode *pnStart = this->addPlanNode(desigRequest->stringValue("_name"));
+    pnStart->setStartTime(this->getTimeStamp());
+    
     pnStart->setDetailLevel(nDetailLevel);
     pnStart->setDescription(desigRequest->children());
     pnStart->setSource(desigRequest->stringValue("_source"));
@@ -85,6 +87,7 @@ bool CPlanLoggerROS::serviceCallbackStopNode(designator_integration_msgs::Design
 	ROS_INFO("Received stop node designator for ID %d (success: %s).", nID, (nSuccess ? "yes" : "no"));
 	
 	pnCurrent->setSuccess((nSuccess == 1 ? true : false));
+	pnCurrent->setEndTime(this->getTimeStamp());
 	
 	CPlanNode *pnParent = pnCurrent->parent();
 	this->setNodeAsActive(pnParent);

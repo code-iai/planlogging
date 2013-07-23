@@ -7,6 +7,7 @@
 #include <list>
 #include <sstream>
 #include <fstream>
+#include <ctime>
 
 // Private
 #include <planlogging/CPlanNode.h>
@@ -31,7 +32,8 @@ class CPlanLogger {
   CPlanNode* activeNode();
 
   string generateRandomIdentifier(string strPrefix, unsigned int unLength);
-
+  int getTimeStamp();
+  
  public:
   CPlanLogger();
   ~CPlanLogger();

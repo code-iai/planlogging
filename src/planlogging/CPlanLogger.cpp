@@ -446,3 +446,7 @@ string CPlanLogger::replaceString(string strOriginal, string strReplaceWhat, str
   
   return strOriginal;
 }
+
+int CPlanLogger::getTimeStamp() {
+  return std::time(0);
+}
