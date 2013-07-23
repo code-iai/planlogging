@@ -123,15 +123,19 @@ bool bReturnvalue = false;
 	ROS_WARN("No node context available. Cannot add image while on top-level.");
       }
     } else if(strCommand == "ADD-OBJECT") {
-      list<CKeyValuePair*> lstDesc = desigRequest->childForKey("description")->children();
+      CKeyValuePair *ckvpDesc = desigRequest->childForKey("DESCRIPTION");
       
-      if(this->activeNode()) {
-	this->activeNode()->addObject(lstDesc);
-	ROS_INFO("Added object to active node (id %d).", this->activeNode()->id());
+      if(ckvpDesc) {
+	list<CKeyValuePair*> lstDesc = ckvpDesc->children();
 	
-	bReturnvalue = true;
-      } else {
-	ROS_WARN("No node context available. Cannot add object while on top-level.");
+	if(this->activeNode()) {
+	  this->activeNode()->addObject(lstDesc);
+	  ROS_INFO("Added object to active node (id %d).", this->activeNode()->id());
+	  
+	  bReturnvalue = true;
+	} else {
+	  ROS_WARN("No node context available. Cannot add object while on top-level.");
+	}
       }
     } else {
       ROS_WARN("Unknown alter command: '%s'", strCommand.c_str());
