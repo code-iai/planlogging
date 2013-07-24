@@ -30,6 +30,7 @@ class CPlanNode {
   string m_strSource;
   list<CImage*> m_lstImages;
   list<CObject*> m_lstObjects;
+  string m_strUniqueID;
   
   void clearImages();
   void clearObjects();
@@ -43,6 +44,9 @@ class CPlanNode {
   CPlanNode();
   CPlanNode(int nID, string strName);
   ~CPlanNode();
+  
+  void setUniqueID(string strUniqueID);
+  string uniqueID();
   
   void setSource(string strSource);
   string source();

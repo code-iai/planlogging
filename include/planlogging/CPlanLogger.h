@@ -25,7 +25,10 @@ class CPlanLogger {
   string replaceString(string strOriginal, string strReplaceWhat, string strReplaceBy);
   
   string generateDotDiGraph(CPlanNode *pnCurrent, int &nIndex, string strParentID, bool bSuccesses, bool bFails, int nMaxDetailLevel);
-  pair<string, string> generateOWL(CPlanNode *pnCurrent, int &nIndex, string strParentID, bool bSuccesses, bool bFails, int nMaxDetailLevel);
+  pair<string, string> generateOWL(CPlanNode *pnCurrent, int &nIndex, string strParentID, string strPreEvent, string strPostEvent, bool bSuccesses, bool bFails, int nMaxDetailLevel);
+  
+  void fillPlanNodesUniqueIDs();
+  string owlTypeForPlanNode(CPlanNode *pnNode);
   
  protected:
   void setNodeAsActive(CPlanNode *pnActive);

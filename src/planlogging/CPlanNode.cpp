@@ -27,6 +27,7 @@ void CPlanNode::init() {
   m_nDetailLevel = 0;
   m_nStartTime = 0;
   m_nEndTime = 0;
+  m_strUniqueID = "";
 }
 
 void CPlanNode::clearSubnodes() {
@@ -205,4 +206,12 @@ list<int> CPlanNode::gatherTimePoints() {
   }
   
   return lstTimePoints;
+}
+
+void CPlanNode::setUniqueID(string strUniqueID) {
+  m_strUniqueID = strUniqueID;
+}
+
+string CPlanNode::uniqueID() {
+  return m_strUniqueID;
 }

@@ -261,6 +261,9 @@ string CPlanLogger::generateOWL(bool bSuccesses, bool bFails, int nMaxDetailLeve
   string strReturnvalue = "<?xml version=\"1.0\"?>\n\n";
   int nIndex = 1;
   
+  // Renew the node's unique IDs.
+  this->fillPlanNodesUniqueIDs();
+  
   string strNamespaceID = this->generateRandomIdentifier("", 8);
   string strNamespace = "http://ias.cs.tum.edu/kb/namespace-" + strNamespaceID;
   string strNamespaceEntity = "namespace_" + strNamespaceID;
@@ -304,6 +307,54 @@ string CPlanLogger::generateOWL(bool bSuccesses, bool bFails, int nMaxDetailLeve
   strReturnvalue += "        <owl:imports rdf:resource=\"http://ias.cs.tum.edu/kb/knowrob.owl\"/>\n";
   strReturnvalue += "    </owl:Ontology>\n\n";
   
+  strReturnvalue += "    <!-- Object Properties -->\n\n";
+  
+  list<string> lstProperties;
+  lstProperties.push_back("http://ias.cs.tum.edu/kb/knowrob.owl#startTime");
+  lstProperties.push_back("http://ias.cs.tum.edu/kb/knowrob.owl#endTime");
+  lstProperties.push_back("http://ias.cs.tum.edu/kb/knowrob.owl#preEvent");
+  lstProperties.push_back("http://ias.cs.tum.edu/kb/knowrob.owl#postEvent");
+  lstProperties.push_back("http://ias.cs.tum.edu/kb/knowrob.owl#subAction");
+  
+  for(list<string>::iterator itProperty = lstProperties.begin();
+      itProperty != lstProperties.end();
+      itProperty++) {
+    strReturnvalue += "    <owl:ObjectProperty rdf:about=\"" + *itProperty + "\"/>\n\n";
+  }
+  
+  strReturnvalue += "    <!-- Class Definitions -->\n\n";
+  
+  list<string> lstClasses;
+  lstClasses.push_back("&knowrob;TimePoint");
+  for(list<CPlanNode*>::iterator itNode = m_lstNodeList.begin();
+      itNode != m_lstNodeList.end();
+      itNode++) {
+    string strType = this->owlTypeForPlanNode(*itNode);
+    bool bExists = false;
+    
+    for(list<string>::iterator itClass = lstClasses.begin();
+	itClass != lstClasses.end();
+	itClass++) {
+      if(*itClass == strType) {
+	bExists = true;
+	break;
+      }
+    }
+    
+    if(!bExists) {
+      lstClasses.push_back(strType);
+    }
+  }
+  
+  for(list<string>::iterator itClass = lstClasses.begin();
+      itClass != lstClasses.end();
+      itClass++) {
+    // Why is the namespace for e.g. classes extended in the .owl
+    // files? Is it a problem when we don't do it here? It should be
+    // okay, though.
+    strReturnvalue += "    <owl:Class rdf:about=\"" + *itClass + "\"/>\n\n";
+  }
+  
   strReturnvalue += "    <!-- Individuals -->\n\n";
   
   for(list<CPlanNode*>::iterator itNode = m_lstPlanNodes.begin();
@@ -311,7 +362,24 @@ string CPlanLogger::generateOWL(bool bSuccesses, bool bFails, int nMaxDetailLeve
       itNode++) {
     CPlanNode *pnCurrent = *itNode;
     
-    pair<string, string> prChildResult = this->generateOWL(pnCurrent, nIndex, strNamespaceToken, bSuccesses, bFails, nMaxDetailLevel);
+    string strPreEventTemp = "";
+    if(itNode != m_lstPlanNodes.begin()) {
+      list<CPlanNode*>::iterator itTemp = itNode;
+      itTemp--;
+      strPreEventTemp = (*itTemp)->uniqueID();
+    }
+    
+    string strPostEventTemp = "";
+    if(itNode != m_lstPlanNodes.end()) {
+      list<CPlanNode*>::iterator itTemp = itNode;
+      itTemp++;
+      
+      if(itTemp != m_lstPlanNodes.end()) {
+	strPostEventTemp = (*itTemp)->uniqueID();
+      }
+    }
+    
+    pair<string, string> prChildResult = this->generateOWL(pnCurrent, nIndex, strNamespaceToken, strPreEventTemp, strPostEventTemp, bSuccesses, bFails, nMaxDetailLevel);
     strReturnvalue += prChildResult.second;
   }
   
@@ -361,40 +429,12 @@ string CPlanLogger::generateOWL(bool bSuccesses, bool bFails, int nMaxDetailLeve
   return strReturnvalue;
 }
 
-pair<string, string> CPlanLogger::generateOWL(CPlanNode *pnCurrent, int &nIndex, string strParentID, bool bSuccesses, bool bFails, int nMaxDetailLevel) {
+pair<string, string> CPlanLogger::generateOWL(CPlanNode *pnCurrent, int &nIndex, string strParentID, string strPreEvent, string strPostEvent, bool bSuccesses, bool bFails, int nMaxDetailLevel) {
   string strReturnvalue = "";
   string strID = "";
   
   if(((bSuccesses && pnCurrent->success()) || (bFails && !pnCurrent->success())) && (pnCurrent->detailLevel() <= nMaxDetailLevel)) {
-    strID = this->generateRandomIdentifier("event_", 8);
-    
-    // Prepare the parameter string
-    string strParameters = "";
-    list<CKeyValuePair*> lstDescription = pnCurrent->description();
-    
-    for(list<CKeyValuePair*>::iterator itPair = lstDescription.begin();
-	itPair != lstDescription.end();
-	itPair++) {
-      CKeyValuePair *ckvpCurrent = *itPair;
-      
-      if(ckvpCurrent->key().at(0) != '_') {
-	string strValue = "?";
-	if(ckvpCurrent->type() == STRING) {
-	  strValue = ckvpCurrent->stringValue();
-	} else if(ckvpCurrent->type() == FLOAT) {
-	  stringstream sts;
-	  sts << ckvpCurrent->floatValue();
-	  strValue = sts.str();
-	}
-	
-	strValue = this->replaceString(strValue, "\n", "\\n");
-	strValue = this->replaceString(strValue, "<", "\\<");
-	strValue = this->replaceString(strValue, ">", "\\>");
-	strValue = this->replaceString(strValue, "\"", "\\\"");
-	
-	// strParameters += "    <owl:namedIndividual rdf:about=" + ckvpCurrent->key() + ">" + strValue + "</owl:" + ckvpCurrent->key() + ">\n";
-      }
-    }
+    strID = pnCurrent->uniqueID();
     
     int nStartTime = pnCurrent->startTime();
     int nEndTime = pnCurrent->endTime();
@@ -412,17 +452,42 @@ pair<string, string> CPlanLogger::generateOWL(CPlanNode *pnCurrent, int &nIndex,
 	itNode++) {
       CPlanNode *pnNode = *itNode;
       
-      pair<string, string> prChild = this->generateOWL(pnNode, nIndex, strParentID, bSuccesses, bFails, nMaxDetailLevel);
+      string strPreEventTemp = "";
+      if(itNode != lstSubnodes.begin()) {
+	list<CPlanNode*>::iterator itTemp = itNode;
+	itTemp--;
+	strPreEventTemp = (*itTemp)->uniqueID();
+      }
+      
+      string strPostEventTemp = "";
+      if(itNode != lstSubnodes.end()) {
+	list<CPlanNode*>::iterator itTemp = itNode;
+	itTemp++;
+	
+	if(itTemp != lstSubnodes.end()) {
+	  strPostEventTemp = (*itTemp)->uniqueID();
+	}
+      }
+      
+      pair<string, string> prChild = this->generateOWL(pnNode, nIndex, strParentID, strPreEventTemp, strPostEventTemp, bSuccesses, bFails, nMaxDetailLevel);
       strReturnvalue += prChild.second;
       lstChildIDs.push_back(prChild.first);
     }
     
     // Introduce yourself and your affiliation
     strReturnvalue += "    <owl:namedIndividual rdf:about=\"&" + strParentID + ";" + strID + "\">\n";
-    strReturnvalue += "        <rdf:type rdf:resource=\"&knowrob;Event\"/>\n";
+    strReturnvalue += "        <rdf:type rdf:resource=\"" + this->owlTypeForPlanNode(pnCurrent) + "\"/>\n";
     strReturnvalue += "        <knowrob:startTime rdf:resource=\"&" + strParentID + ";timepoint_" + stsStartTime.str() + "\"/>\n";
     strReturnvalue += "        <knowrob:endTime rdf:resource=\"&" + strParentID + ";timepoint_" + stsEndTime.str() + "\"/>\n";
-
+    
+    if(strPreEvent != "") {
+      strReturnvalue += "        <knowrob:preEvent rdf:resource=\"&" + strParentID + ";" + strPreEvent + "\"/>\n";
+    }
+    
+    if(strPostEvent != "") {
+      strReturnvalue += "        <knowrob:postEvent rdf:resource=\"&" + strParentID + ";" + strPostEvent + "\"/>\n";
+    }
+    
     for(list<string>::iterator itID = lstChildIDs.begin();
 	itID != lstChildIDs.end();
 	itID++) {
@@ -433,6 +498,43 @@ pair<string, string> CPlanLogger::generateOWL(CPlanNode *pnCurrent, int &nIndex,
   }
   
   return make_pair(strID, strReturnvalue);
+}
+
+string CPlanLogger::owlTypeForPlanNode(CPlanNode *pnNode) {
+  string strName = pnNode->name();
+  string strReturnvalue = "";
+  
+  if(strName == "WITH-DESIGNATORS") {
+    // Is this right? Or is there a more fitting type for that?
+    strReturnvalue = "&knowrob;SoftwareObject";
+  } else if(strName.substr(0, 5) == "GOAL-") {
+    // This is a goal definition.
+    string strGoal = strName.substr(5);
+    
+    if(strGoal == "PERCEIVE-OBJECT") {
+      strReturnvalue = "&knowrob;VisualPerception";
+    } else if(strGoal == "ACHIEVE") {
+    } else if(strGoal == "PERFORM") {
+      strReturnvalue = "&knowrob;Action";
+    } else if(strGoal == "MONITOR-ACTION") {
+    } else if(strGoal == "PERFORM-ON-PROCESS-MODULE") {
+    }
+  } else if(strName.substr(0, 8) == "RESOLVE-") {
+    // This is a designator resolution.
+    string strDesigType = strName.substr(8);
+    
+    if(strDesigType == "LOCATION-DESIGNATOR") {
+    } else if(strDesigType == "ACTION-DESIGNATOR") {
+    }
+  } else if(strName.substr(0, 21) == "REPLACEABLE-FUNCTION-") {
+    // This is an internal function name
+    string strFunction = strName.substr(21);
+    
+  } else {
+    strReturnvalue = "&knowrob;Event";
+  }
+  
+  return strReturnvalue;
 }
 
 string CPlanLogger::replaceString(string strOriginal, string strReplaceWhat, string strReplaceBy) {
@@ -449,4 +551,12 @@ string CPlanLogger::replaceString(string strOriginal, string strReplaceWhat, str
 
 int CPlanLogger::getTimeStamp() {
   return std::time(0);
+}
+
+void CPlanLogger::fillPlanNodesUniqueIDs() {
+  for(list<CPlanNode*>::iterator itNode = m_lstNodeList.begin();
+      itNode != m_lstNodeList.end();
+      itNode++) {
+    (*itNode)->setUniqueID(this->generateRandomIdentifier("event_", 8));
+  }
 }
