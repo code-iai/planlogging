@@ -265,9 +265,8 @@ string CPlanLogger::generateOWL(bool bSuccesses, bool bFails, int nMaxDetailLeve
   this->fillPlanNodesUniqueIDs();
   
   string strNamespaceID = this->generateRandomIdentifier("", 8);
-  string strNamespace = "http://ias.cs.tum.edu/kb/namespace-" + strNamespaceID;
-  string strNamespaceEntity = "namespace_" + strNamespaceID;
-  string strNamespaceToken = "namespace-" + strNamespaceID;
+  string strNamespaceToken = "execution-log-" + strNamespaceID;
+  string strNamespace = "http://ias.cs.tum.edu/kb/" + strNamespaceToken;
   
   list< pair<string, string> > lstEntities;
   lstEntities.push_back(make_pair("owl", "http://www.w3.org/2002/07/owl#"));
@@ -493,7 +492,7 @@ pair<string, string> CPlanLogger::generateOWL(CPlanNode *pnCurrent, int &nIndex,
 	itID++) {
       strReturnvalue += "        <knowrob:subAction rdf:resource=\"&" + strParentID + ";" + *itID + "\"/>\n";
     }
-
+    
     strReturnvalue += "    </owl:namedIndividual>\n\n";
   }
   
