@@ -7,7 +7,33 @@ CImageCapturer::CImageCapturer() {
 CImageCapturer::~CImageCapturer() {
 }
 
-bool CImageCapturer::captureFromTopic(string strTopicName, string strFileName) {
+bool CImageCapturer::fileExists(string strFileName) {
+  ifstream ifile(strFileName.c_str());
+  
+  if(ifile) {
+    return true;
+  }
+  
+  return false;
+}
+
+void CImageCapturer::freeFilename(string& strFileName) {
+  int nIndex = 0;
+  string strBase = strFileName;
+  
+  while(this->fileExists(strBase)) {
+    stringstream sts;
+    sts << nIndex;
+    sts << "_";
+    sts << strFileName;
+    
+    strBase = sts.str();
+  }
+  
+  strFileName = strBase;
+}
+
+bool CImageCapturer::captureFromTopic(string strTopicName, string& strFileName, bool bUseFreeName) {
   int nTimeout = 100;
   bool bReturnvalue = false;
   bool bGoon = true;
@@ -36,6 +62,11 @@ bool CImageCapturer::captureFromTopic(string strTopicName, string strFileName) {
       cv_ptr = cv_bridge::toCvCopy(m_imgReceived, sensor_msgs::image_encodings::BGR8);
       
       cv::Mat imgMat = cv_ptr->image;
+      
+      if(bUseFreeName) {
+	this->freeFilename(strFileName);
+      }
+      
       cv::imwrite(strFileName, imgMat);
       
       bReturnvalue = true;

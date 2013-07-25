@@ -4,6 +4,8 @@
 
 // System
 #include <string>
+#include <iostream>
+#include <fstream>
 
 // ROS
 #include <ros/ros.h>
@@ -24,11 +26,14 @@ class CImageCapturer {
   bool m_bReceived;
   sensor_msgs::Image m_imgReceived;
 
+  bool fileExists(string strFileName);
+  void freeFilename(string& strFileName);
+
  public:
   CImageCapturer();
   ~CImageCapturer();
   
-  bool captureFromTopic(string strTopicName, string strFileName);
+  bool captureFromTopic(string strTopicName, string &strFileName, bool bUseFreeName = true);
   void imageCallback(const sensor_msgs::Image &imgData);
 };
 
