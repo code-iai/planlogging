@@ -4,6 +4,7 @@
 
 // ROS
 #include <ros/ros.h>
+#include <sensor_msgs/Image.h>
 
 // Other
 #include <designators/CDesignator.h>
@@ -11,6 +12,7 @@
 
 // Private
 #include <planlogging/CPlanLogger.h>
+#include <planlogging/CImageCapturer.h>
 
 
 class CPlanLoggerROS : public CPlanLogger {
@@ -27,7 +29,7 @@ class CPlanLoggerROS : public CPlanLogger {
   bool serviceCallbackStopNode(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
   bool serviceCallbackAlterNode(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
   bool serviceCallbackControl(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
-
+  
  public:
   CPlanLoggerROS();
   ~CPlanLoggerROS();

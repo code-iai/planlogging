@@ -118,10 +118,18 @@ bool bReturnvalue = false;
       string strImageFilename = desigRequest->stringValue("filename");
       
       if(this->activeNode()) {
-	this->activeNode()->addImage(strImageOrigin, strImageFilename);
-	ROS_INFO("Added image '%s' (from '%s') to active node (id %d).", strImageFilename.c_str(), strImageOrigin.c_str(), this->activeNode()->id());
+	CImageCapturer *capImage = new CImageCapturer();
 	
-	bReturnvalue = true;
+	if(capImage->captureFromTopic(strImageOrigin, strImageFilename)) {
+	  this->activeNode()->addImage(strImageOrigin, strImageFilename);
+	  ROS_INFO("Added image '%s' (from '%s') to active node (id %d).", strImageFilename.c_str(), strImageOrigin.c_str(), this->activeNode()->id());
+	  
+	  bReturnvalue = true;
+	} else {
+	  ROS_WARN("Unable to capture image from topic `%s'.", strImageOrigin.c_str());
+	}
+	
+	delete capImage;
       } else {
 	ROS_WARN("No node context available. Cannot add image while on top-level.");
       }

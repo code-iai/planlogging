@@ -4,7 +4,7 @@ project(planlogger)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp message_generation designator_integration designator_integration_msgs)
+find_package(catkin REQUIRED COMPONENTS roscpp message_generation designator_integration designator_integration_msgs sensor_msgs cv_bridge)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -34,7 +34,7 @@ find_package(catkin REQUIRED COMPONENTS roscpp message_generation designator_int
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
-  designator_integration_msgs
+  designator_integration_msgs sensor_msgs
 #   std_msgs  # Or other packages containing msgs
 )
 
@@ -49,7 +49,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES planlogger
-  CATKIN_DEPENDS roscpp message_runtime designator_integration designator_integration_msgs
+  CATKIN_DEPENDS roscpp message_runtime designator_integration designator_integration_msgs sensor_msgs cv_bridge
 #  DEPENDS system_lib
 )
 
@@ -76,7 +76,8 @@ add_library(PlanLogging
   src/planlogging/CObject.cpp)
 
 add_library(PlanLoggingROS
-  src/planlogging/CPlanLoggerROS.cpp)
+  src/planlogging/CPlanLoggerROS.cpp
+  src/planlogging/CImageCapturer.cpp)
 
 add_dependencies(PlanLogging designator_integration_generate_messages_cpp message_generation message_runtime)
 add_dependencies(PlanLoggingROS PlanLogging)
