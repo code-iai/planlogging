@@ -501,7 +501,7 @@ pair<string, string> CPlanLogger::generateOWL(CPlanNode *pnCurrent, int &nIndex,
 
 string CPlanLogger::owlTypeForPlanNode(CPlanNode *pnNode) {
   string strName = pnNode->name();
-  string strReturnvalue = "";
+  string strReturnvalue = "&knowrob;Thing";
   
   if(strName == "WITH-DESIGNATORS") {
     // Is this right? Or is there a more fitting type for that?
@@ -528,7 +528,6 @@ string CPlanLogger::owlTypeForPlanNode(CPlanNode *pnNode) {
   } else if(strName.substr(0, 21) == "REPLACEABLE-FUNCTION-") {
     // This is an internal function name
     string strFunction = strName.substr(21);
-    
   } else {
     strReturnvalue = "&knowrob;Event";
   }
