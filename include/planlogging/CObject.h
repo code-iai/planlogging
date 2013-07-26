@@ -13,8 +13,14 @@ using namespace std;
 
 
 class CObject : public CDesignator {
+ private:
+  string m_strUniqueID;
+
  public:
   CObject(list<CKeyValuePair*> lstDescription);
+  
+  void setUniqueID(string strUniqueID);
+  string uniqueID();
 };
 
 
