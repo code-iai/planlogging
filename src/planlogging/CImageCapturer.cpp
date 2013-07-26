@@ -27,6 +27,8 @@ void CImageCapturer::freeFilename(string& strFileName) {
     sts << "_";
     sts << strFileName;
     
+    nIndex++;
+    
     strBase = sts.str();
   }
   
