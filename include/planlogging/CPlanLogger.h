@@ -29,6 +29,7 @@ class CPlanLogger {
   
   void fillPlanNodesUniqueIDs();
   string owlTypeForPlanNode(CPlanNode *pnNode);
+  pair< string, list<string> > owlObjectsForPlanNode(CPlanNode *pnNode, string strNamespace);
   
  protected:
   void setNodeAsActive(CPlanNode *pnActive);

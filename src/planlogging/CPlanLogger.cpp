@@ -354,7 +354,7 @@ string CPlanLogger::generateOWL(bool bSuccesses, bool bFails, int nMaxDetailLeve
     strReturnvalue += "    <owl:Class rdf:about=\"" + *itClass + "\"/>\n\n";
   }
   
-  strReturnvalue += "    <!-- Individuals -->\n\n";
+  strReturnvalue += "    <!-- Event Individuals -->\n\n";
   
   for(list<CPlanNode*>::iterator itNode = m_lstPlanNodes.begin();
       itNode != m_lstPlanNodes.end();
@@ -380,6 +380,17 @@ string CPlanLogger::generateOWL(bool bSuccesses, bool bFails, int nMaxDetailLeve
     
     pair<string, string> prChildResult = this->generateOWL(pnCurrent, nIndex, strNamespaceToken, strPreEventTemp, strPostEventTemp, bSuccesses, bFails, nMaxDetailLevel);
     strReturnvalue += prChildResult.second;
+  }
+
+  strReturnvalue += "    <!-- Object Individuals -->\n\n";
+  
+  for(list<CPlanNode*>::iterator itNode = m_lstNodeList.begin();
+      itNode != m_lstNodeList.end();
+      itNode++) {
+    CPlanNode *pnCurrent = *itNode;
+    
+    pair< string, list<string> > prObjects = this->owlObjectsForPlanNode(pnCurrent, strNamespaceToken);
+    strReturnvalue += prObjects.first;
   }
   
   strReturnvalue += "    <!-- Timepoint Individuals -->\n\n";
@@ -493,6 +504,17 @@ pair<string, string> CPlanLogger::generateOWL(CPlanNode *pnCurrent, int &nIndex,
       strReturnvalue += "        <knowrob:subAction rdf:resource=\"&" + strParentID + ";" + *itID + "\"/>\n";
     }
     
+    list<CObject*> lstObjects = pnCurrent->objects();
+    for(list<CObject*>::iterator itObject = lstObjects.begin();
+	itObject != lstObjects.end();
+	itObject++) {
+      CObject *objObject = *itObject;
+      
+      if(pnCurrent->name() == "UIMA-PERCEIVE") {
+	strReturnvalue += "        <knowrob:detectedObject rdf:resource=\"&" + strParentID + ";" + objObject->uniqueID() + "\"/>\n";
+      }
+    }
+    
     strReturnvalue += "    </owl:namedIndividual>\n\n";
   }
   
@@ -511,7 +533,7 @@ string CPlanLogger::owlTypeForPlanNode(CPlanNode *pnNode) {
     string strGoal = strName.substr(5);
     
     if(strGoal == "PERCEIVE-OBJECT") {
-      strReturnvalue = "&knowrob;VisualPerception";
+      //strReturnvalue = "&knowrob;VisualPerception";
     } else if(strGoal == "ACHIEVE") {
     } else if(strGoal == "PERFORM") {
       strReturnvalue = "&knowrob;Action";
@@ -528,11 +550,37 @@ string CPlanLogger::owlTypeForPlanNode(CPlanNode *pnNode) {
   } else if(strName.substr(0, 21) == "REPLACEABLE-FUNCTION-") {
     // This is an internal function name
     string strFunction = strName.substr(21);
+  } else if(strName == "UIMA-PERCEIVE") {
+    strReturnvalue = "&knowrob;VisualPerception";
   } else {
     strReturnvalue = "&knowrob;Event";
   }
   
   return strReturnvalue;
+}
+
+pair< string, list<string> > CPlanLogger::owlObjectsForPlanNode(CPlanNode *pnNode, string strNamespace) {
+  string strName = pnNode->name();
+  string strReturnvalue = "";
+  list<string> lstIDs;
+  
+  if(strName == "UIMA-PERCEIVE") {
+    list<CObject*> lstObjects = pnNode->objects();
+    
+    for(list<CObject*>::iterator itObject = lstObjects.begin();
+	itObject != lstObjects.end();
+	itObject++) {
+      CObject *objObject = *itObject;
+      
+      strReturnvalue += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + objObject->uniqueID() + "\">\n";
+      strReturnvalue += "        <rdf:type rdf:resource=\"&knowrob;Thing\"/>\n";
+      strReturnvalue += "    </owl:namedIndividual>\n\n";
+      
+      lstIDs.push_back(objObject->uniqueID());
+    }
+  }
+  
+  return make_pair(strReturnvalue, lstIDs);
 }
 
 string CPlanLogger::replaceString(string strOriginal, string strReplaceWhat, string strReplaceBy) {
@@ -552,9 +600,18 @@ int CPlanLogger::getTimeStamp() {
 }
 
 void CPlanLogger::fillPlanNodesUniqueIDs() {
+  // Plan nodes
   for(list<CPlanNode*>::iterator itNode = m_lstNodeList.begin();
       itNode != m_lstNodeList.end();
       itNode++) {
     (*itNode)->setUniqueID(this->generateRandomIdentifier("event_", 8));
+    
+    // Objects attached to plan nodes
+    list<CObject*> lstObjects = (*itNode)->objects();
+    for(list<CObject*>::iterator itObject = lstObjects.begin();
+	itObject != lstObjects.end();
+	itObject++) {
+      (*itObject)->setUniqueID(this->generateRandomIdentifier("object_", 8));
+    }
   }
 }
