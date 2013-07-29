@@ -481,7 +481,10 @@ pair<string, string> CPlanLogger::generateOWL(CPlanNode *pnCurrent, int &nIndex,
       
       pair<string, string> prChild = this->generateOWL(pnNode, nIndex, strParentID, strPreEventTemp, strPostEventTemp, bSuccesses, bFails, nMaxDetailLevel);
       strReturnvalue += prChild.second;
-      lstChildIDs.push_back(prChild.first);
+      
+      if(prChild.first != "") {
+	lstChildIDs.push_back(prChild.first);
+      }
     }
     
     // Introduce yourself and your affiliation
@@ -498,10 +501,10 @@ pair<string, string> CPlanLogger::generateOWL(CPlanNode *pnCurrent, int &nIndex,
       strReturnvalue += "        <knowrob:postEvent rdf:resource=\"&" + strParentID + ";" + strPostEvent + "\"/>\n";
     }
     
-    for(list<string>::iterator itID = lstChildIDs.begin();
-	itID != lstChildIDs.end();
-	itID++) {
-      strReturnvalue += "        <knowrob:subAction rdf:resource=\"&" + strParentID + ";" + *itID + "\"/>\n";
+    for(list<string>::iterator itNode = lstChildIDs.begin();
+	itNode != lstChildIDs.end();
+	itNode++) {
+      strReturnvalue += "        <knowrob:subAction rdf:resource=\"&" + strParentID + ";" + *itNode + "\"/>\n";
     }
     
     list<CObject*> lstObjects = pnCurrent->objects();
