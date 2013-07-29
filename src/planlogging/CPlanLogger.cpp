@@ -4,7 +4,7 @@
 CPlanLogger::CPlanLogger() {
   m_pnActive = NULL;
   this->setUseColor(true);
-
+  
   srand(time(NULL));
 }
 
@@ -626,6 +626,8 @@ void CPlanLogger::fillPlanNodesUniqueIDs() {
 
 void CPlanLogger::setExperimentsResultRoot(string strExperimentsResultRoot) {
   m_strExperimentsResultRoot = strExperimentsResultRoot;
+  
+  mkdir(this->experimentsResultRoot().c_str(), 0777);
 }
 
 string CPlanLogger::experimentsResultRoot() {
