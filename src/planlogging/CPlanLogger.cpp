@@ -530,25 +530,30 @@ string CPlanLogger::owlTypeForPlanNode(CPlanNode *pnNode) {
   
   if(strName == "WITH-DESIGNATORS") {
     // Is this right? Or is there a more fitting type for that?
-    strReturnvalue = "&knowrob;SoftwareObject";
+    strReturnvalue = "&knowrob;MentalEvent";
   } else if(strName.substr(0, 5) == "GOAL-") {
     // This is a goal definition.
     string strGoal = strName.substr(5);
     
     if(strGoal == "PERCEIVE-OBJECT") {
-      //strReturnvalue = "&knowrob;VisualPerception";
+      strReturnvalue = "&knowrob;Perceiving";
     } else if(strGoal == "ACHIEVE") {
+      strReturnvalue = "&knowrob;MentalEvent";
     } else if(strGoal == "PERFORM") {
-      strReturnvalue = "&knowrob;Action";
+      strReturnvalue = "&knowrob;PurposefulAction";
     } else if(strGoal == "MONITOR-ACTION") {
+      strReturnvalue = "&knowrob;Waiting";
     } else if(strGoal == "PERFORM-ON-PROCESS-MODULE") {
+      strReturnvalue = "&knowrob;PurposefulAction";
     }
   } else if(strName.substr(0, 8) == "RESOLVE-") {
     // This is a designator resolution.
     string strDesigType = strName.substr(8);
     
     if(strDesigType == "LOCATION-DESIGNATOR") {
+      strReturnvalue = "&knowrob;Reasoning";
     } else if(strDesigType == "ACTION-DESIGNATOR") {
+      strReturnvalue = "&knowrob;Reasoning";
     }
   } else if(strName.substr(0, 21) == "REPLACEABLE-FUNCTION-") {
     // This is an internal function name
