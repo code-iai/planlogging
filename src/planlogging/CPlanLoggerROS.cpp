@@ -195,7 +195,22 @@ bool CPlanLoggerROS::serviceCallbackControl(designator_integration_msgs::Designa
   if(desigRequest) {
     string strCommand = desigRequest->stringValue("command");
     
-    if(strCommand == "EXTRACT") {
+    if(strCommand == "SESSION") {
+      string strSessionCommand = desigRequest->stringValue("session-command");
+      
+      if(strSessionCommand == "RESTART") {
+	ROS_INFO("Request to renew session. Flushing buffers and resetting experiment name.");
+	
+	if(this->renewSession()) {
+	  ROS_INFO("New experiment name is: '%s'", this->experimentName().c_str());
+	  bReturnvalue = true;
+	} else {
+	  ROS_ERROR("Could not renew session.");
+	}
+      } else {
+	ROS_WARN("Unknown session command: '%s'", strCommand.c_str());
+      }
+    } else if(strCommand == "EXTRACT") {
       string strFormat = desigRequest->stringValue("format");
       
       if(strFormat == "DOT") {
@@ -211,7 +226,8 @@ bool CPlanLoggerROS::serviceCallbackControl(designator_integration_msgs::Designa
 	  string strContents = this->generateDotDiGraph(bSuccesses, bFails, nMaxDetailLevel);
 	  
 	  ofstream myfile;
-	  myfile.open(strFilename.c_str());
+	  string strFullFilename = this->experimentPath() + strFilename;
+	  myfile.open(strFullFilename.c_str());
 	  myfile << strContents;
 	  myfile.close();
 	  
@@ -241,8 +257,9 @@ bool CPlanLoggerROS::serviceCallbackControl(designator_integration_msgs::Designa
 	  
 	  string strContents = this->generateOWL(bSuccesses, bFails, nMaxDetailLevel);
 	  
+	  string strFullFilename = this->experimentPath() + strFilename;
 	  ofstream myfile;
-	  myfile.open(strFilename.c_str());
+	  myfile.open(strFullFilename.c_str());
 	  myfile << strContents;
 	  myfile.close();
 	  

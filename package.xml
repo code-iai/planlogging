@@ -56,6 +56,9 @@
   <build_depend>roscpp</build_depend>
   <run_depend>roscpp</run_depend>
 
+  <build_depend>roslib</build_depend>
+  <run_depend>roslib</run_depend>
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

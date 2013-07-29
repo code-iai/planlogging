@@ -8,6 +8,10 @@
 #include <sstream>
 #include <fstream>
 #include <ctime>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
 
 // Private
 #include <planlogging/CPlanNode.h>
@@ -21,6 +25,8 @@ class CPlanLogger {
   list<CPlanNode*> m_lstNodeList;
   CPlanNode *m_pnActive;
   bool m_bUseColor;
+  string m_strExperimentsResultRoot;
+  string m_strExperimentName;
   
   string replaceString(string strOriginal, string strReplaceWhat, string strReplaceBy);
   
@@ -38,6 +44,8 @@ class CPlanLogger {
   string generateRandomIdentifier(string strPrefix, unsigned int unLength);
   int getTimeStamp();
   
+  string experimentPath(string strExperimentName = "");
+  
  public:
   CPlanLogger();
   ~CPlanLogger();
@@ -51,6 +59,14 @@ class CPlanLogger {
   
   string generateDotDiGraph(bool bSuccesses, bool bFails, int nMaxDetailLevel);
   string generateOWL(bool bSuccesses, bool bFails, int nMaxDetailLevel);
+  
+  void setExperimentsResultRoot(string strExperimentsResultRoot);
+  string experimentsResultRoot();
+  
+  void setExperimentName(string strExperimentName);
+  string experimentName();
+  
+  bool renewSession();
 };
 
 

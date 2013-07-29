@@ -623,3 +623,67 @@ void CPlanLogger::fillPlanNodesUniqueIDs() {
     }
   }
 }
+
+void CPlanLogger::setExperimentsResultRoot(string strExperimentsResultRoot) {
+  m_strExperimentsResultRoot = strExperimentsResultRoot;
+}
+
+string CPlanLogger::experimentsResultRoot() {
+  return m_strExperimentsResultRoot;
+}
+
+void CPlanLogger::setExperimentName(string strExperimentName) {
+  m_strExperimentName = strExperimentName;
+}
+
+string CPlanLogger::experimentName() {
+  return m_strExperimentName;
+}
+
+bool CPlanLogger::renewSession() {
+  bool bReturnvalue = false;
+  
+  if(m_strExperimentsResultRoot != "") {
+    // Get rid of old plan node data
+    this->clearPlanNodes();
+    m_pnActive = NULL;
+    
+    // Generate new experiment name (plus according directory)
+    int nIndex = 0;
+    bool bExists;
+    string strNewName;
+    
+    do {
+      stringstream sts;
+      sts << "experiment-";
+      sts << nIndex;
+      nIndex++;
+      
+      strNewName = sts.str();
+      string strNewPath = this->experimentPath(strNewName);
+      
+      struct stat sb;
+      int nReturnStat = stat(strNewPath.c_str(), &sb);
+      bExists = (nReturnStat == 0);
+    } while(bExists);
+    
+    m_strExperimentName = strNewName;
+    mkdir(this->experimentPath().c_str(), 0777);
+    ROS_INFO("Name of new experiment is '%s'.", m_strExperimentName.c_str());
+    
+    bReturnvalue = true;
+  } else {
+    ROS_WARN("Cannot renew experiment name. Experiments result root is empty.");
+    ROS_WARN("Did you move the package in some other folder than 'planlogger'?");
+  }
+  
+  return bReturnvalue;
+}
+
+string CPlanLogger::experimentPath(string strExperimentName) {
+  if(strExperimentName == "") {
+    strExperimentName = m_strExperimentName;
+  }
+  
+  return m_strExperimentsResultRoot + "/" + strExperimentName + "/";
+}
