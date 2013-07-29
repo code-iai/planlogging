@@ -31,6 +31,7 @@ class CPlanNode {
   list<CImage*> m_lstImages;
   list<CObject*> m_lstObjects;
   string m_strUniqueID;
+  bool m_bPrematurelyEnded;
   
   void clearImages();
   void clearObjects();
@@ -44,6 +45,9 @@ class CPlanNode {
   CPlanNode();
   CPlanNode(int nID, string strName);
   ~CPlanNode();
+  
+  void setPrematurelyEnded(bool bPrematurelyEnded);
+  bool prematurelyEnded();
   
   void setUniqueID(string strUniqueID);
   string uniqueID();

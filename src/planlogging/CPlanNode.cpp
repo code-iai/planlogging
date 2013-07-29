@@ -28,6 +28,15 @@ void CPlanNode::init() {
   m_nStartTime = 0;
   m_nEndTime = 0;
   m_strUniqueID = "";
+  m_bPrematurelyEnded = false;
+}
+
+void CPlanNode::setPrematurelyEnded(bool bPrematurelyEnded) {
+  m_bPrematurelyEnded = bPrematurelyEnded;
+}
+
+bool CPlanNode::prematurelyEnded() {
+  return m_bPrematurelyEnded;
 }
 
 void CPlanNode::clearSubnodes() {

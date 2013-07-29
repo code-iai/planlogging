@@ -92,9 +92,41 @@ bool CPlanLoggerROS::serviceCallbackStopNode(designator_integration_msgs::Design
 	CPlanNode *pnParent = pnCurrent->parent();
 	this->setNodeAsActive(pnParent);
 	
+	while(pnParent) {
+	  if(pnParent->prematurelyEnded()) {
+	    pnParent = pnParent->parent();
+	    this->setNodeAsActive(pnParent);
+	  } else {
+	    this->setNodeAsActive(pnParent);
+	    break;
+	  }
+	}
+	
 	bReturnvalue = true;
       } else {
 	ROS_WARN("Received stop node designator for ID %d while ID %d is active.", nID, pnCurrent->id());
+	
+	CPlanNode *pnEndedPrematurely = NULL;
+	CPlanNode *pnSearchTemp = pnCurrent->parent();
+	
+	while(pnSearchTemp) {
+	  if(pnSearchTemp->id() == nID) {
+	    pnEndedPrematurely = pnSearchTemp;
+	    pnSearchTemp = NULL;
+	  } else {
+	    pnSearchTemp = pnSearchTemp->parent();
+	  }
+	}
+	
+	if(pnEndedPrematurely) {
+	  // Found the prematurely ended node in this branch
+	  ROS_INFO("Marking node %d as prematurely ended.", nID);
+	  pnEndedPrematurely->setPrematurelyEnded(true);
+	  bReturnvalue = true;
+	} else {
+	  // Didn't find the prematurely ended node in this branch
+	  ROS_ERROR("The apparently prematurely ended node %d was not found. This is probably a problem.", nID);
+	}
       }
     } else {
       ROS_WARN("Received stop node designator for ID %d while in top-level.", nID);
