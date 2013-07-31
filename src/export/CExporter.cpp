@@ -139,3 +139,19 @@ string CExporter::replaceString(string strOriginal, string strReplaceWhat, strin
   
   return strOriginal;
 }
+
+bool CExporter::nodeDisplayable(CNode* ndDisplay) {
+  int nConfigMaxDetailLevel = this->configuration()->floatValue("max-detail-level");
+  int nNodeDetailLevel = ndDisplay->metaInformation()->floatValue("detail-level");
+  bool bDisplaySuccesses = (this->configuration()->floatValue("display-successes") == 1);
+  bool bDisplayFailures = (this->configuration()->floatValue("display-failures") == 1);
+  bool bNodeSuccess = (ndDisplay->metaInformation()->floatValue("success") == 1);
+  
+  if(nNodeDetailLevel <= nConfigMaxDetailLevel) {
+    if((bNodeSuccess && bDisplaySuccesses) || (!bNodeSuccess && bDisplayFailures)) {
+      return true;
+    }
+  }
+  
+  return false;
+}

@@ -46,6 +46,7 @@ class CExporter {
   bool writeToFile(string strContent, string strFilename = "");
   
   string replaceString(string strOriginal, string strReplaceWhat, string strReplaceBy);
+  virtual bool nodeDisplayable(CNode* ndDisplay);
 };
 
 
