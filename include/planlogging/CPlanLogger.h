@@ -15,6 +15,7 @@
 
 // Private
 #include <planlogging/CPlanNode.h>
+#include <export/CExporter.h>
 
 using namespace std;
 
@@ -67,6 +68,9 @@ class CPlanLogger {
   string experimentName();
   
   bool renewSession();
+  
+  CNode* convertPlanNodeToNode(CPlanNode* pnConvert);
+  void configureExporter(CExporter *expConfigure);
 };
 
 

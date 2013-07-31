@@ -95,6 +95,74 @@ CPlanNode* CPlanLogger::activeNode() {
   return m_pnActive;
 }
 
+CNode* CPlanLogger::convertPlanNodeToNode(CPlanNode* pnConvert) {
+  CNode *ndNew = new CNode(pnConvert->description());
+  
+  // Meta Information
+  ndNew->metaInformation()->setValue(string("time-start"), pnConvert->startTime());
+  ndNew->metaInformation()->setValue(string("time-end"), pnConvert->endTime());
+  ndNew->metaInformation()->setValue(string("success"), (pnConvert->success() ? 1 : 0));
+  ndNew->metaInformation()->setValue(string("source"), pnConvert->source());
+  ndNew->metaInformation()->setValue(string("prematurely-ended"), (pnConvert->prematurelyEnded() ? 1 : 0));
+  ndNew->metaInformation()->setValue(string("detail-level"), pnConvert->detailLevel());
+  
+  // Attached Images
+  CKeyValuePair* ckvpImages = ndNew->metaInformation()->addChild("images");
+  list<CImage*> lstImages = pnConvert->images();
+  unsigned int unIndex = 0;
+  for(list<CImage*>::iterator itImage = lstImages.begin();
+      itImage != lstImages.end();
+      itImage++, unIndex++) {
+    CImage *imgCurrent = *itImage;
+    
+    stringstream sts;
+    sts << "image-";
+    sts << unIndex;
+    
+    CKeyValuePair* ckvpImage = ckvpImages->addChild(sts.str());
+    ckvpImage->setValue(string("origin"), imgCurrent->origin());
+    ckvpImage->setValue(string("filename"), imgCurrent->filename());
+    
+    ckvpImages->addChild(ckvpImage);
+  }
+
+  // Attached Objects
+  CKeyValuePair* ckvpObjects = ndNew->metaInformation()->addChild("objects");
+  list<CObject*> lstObjects = pnConvert->objects();
+  unIndex = 0;
+  for(list<CObject*>::iterator itObject = lstObjects.begin();
+      itObject != lstObjects.end();
+      itObject++, unIndex++) {
+    CObject *objCurrent = *itObject;
+    
+    stringstream sts;
+    sts << "object-";
+    sts << unIndex;
+    
+    CKeyValuePair* ckvpObject = ckvpObjects->addChild(sts.str());
+    list<CKeyValuePair*> lstDescription = objCurrent->description();
+    for(list<CKeyValuePair*>::iterator itPair = lstDescription.begin();
+	itPair != lstDescription.end();
+	itPair++) {
+      ckvpObjects->addChild(*itPair);
+    }
+    
+    ckvpObjects->addChild(ckvpObject);
+  }
+  
+  return ndNew;
+}
+
+void CPlanLogger::configureExporter(CExporter *expConfigure) {
+  for(list<CPlanNode*>::iterator itNode = m_lstPlanNodes.begin();
+      itNode != m_lstPlanNodes.end();
+      itNode++) {
+    CPlanNode *pnCurrent = *itNode;
+    
+    expConfigure->addNode(this->convertPlanNodeToNode(pnCurrent));
+  }
+}
+
 string CPlanLogger::generateDotDiGraph(bool bSuccesses, bool bFails, int nMaxDetailLevel) {
   string strReturnvalue = "digraph plangraph {\n";
   int nIndex = 1;
@@ -526,42 +594,55 @@ pair<string, string> CPlanLogger::generateOWL(CPlanNode *pnCurrent, int &nIndex,
 
 string CPlanLogger::owlTypeForPlanNode(CPlanNode *pnNode) {
   string strName = pnNode->name();
-  string strReturnvalue = "&knowrob;Thing";
+  string strReturnvalue = "&knowrob;CRAMAction";
   
   if(strName == "WITH-DESIGNATORS") {
     // Is this right? Or is there a more fitting type for that?
-    strReturnvalue = "&knowrob;MentalEvent";
+    strReturnvalue = "&knowrob;WithDesignators";
   } else if(strName.substr(0, 5) == "GOAL-") {
     // This is a goal definition.
     string strGoal = strName.substr(5);
     
+    // Missing yet:
+    /*
+      PREVENT
+      MAINTAIN
+      INFORM (speech act, add information to belief state from outside)
+     */
+    
     if(strGoal == "PERCEIVE-OBJECT") {
-      strReturnvalue = "&knowrob;Perceiving";
+      strReturnvalue = "&knowrob;Perceive";
     } else if(strGoal == "ACHIEVE") {
-      strReturnvalue = "&knowrob;MentalEvent";
-    } else if(strGoal == "PERFORM") {
-      strReturnvalue = "&knowrob;PurposefulAction";
+      strReturnvalue = "&knowrob;Achieve";
+    } else if(strGoal == "PERFORM") { // Should go into another structure (?)
+      strReturnvalue = "&knowrob;Perform";
     } else if(strGoal == "MONITOR-ACTION") {
-      strReturnvalue = "&knowrob;Waiting";
+      strReturnvalue = "&knowrob;Monitor";
     } else if(strGoal == "PERFORM-ON-PROCESS-MODULE") {
-      strReturnvalue = "&knowrob;PurposefulAction";
+      strReturnvalue = "&knowrob;PerformOnProcessModule";
+    } else {
+      strReturnvalue = "&knowrob;DeclarativeGoal";
     }
   } else if(strName.substr(0, 8) == "RESOLVE-") {
     // This is a designator resolution.
     string strDesigType = strName.substr(8);
     
     if(strDesigType == "LOCATION-DESIGNATOR") {
-      strReturnvalue = "&knowrob;Reasoning";
+      strReturnvalue = "&knowrob;ResolveLocationDesignator";
     } else if(strDesigType == "ACTION-DESIGNATOR") {
-      strReturnvalue = "&knowrob;Reasoning";
+      strReturnvalue = "&knowrob;ResolveActionDesignator";
     }
   } else if(strName.substr(0, 21) == "REPLACEABLE-FUNCTION-") {
     // This is an internal function name
     string strFunction = strName.substr(21);
+    
+    if(strFunction == "NAVIGATE") {
+      strReturnvalue = "&knowrob;Navigate";
+    }
   } else if(strName == "UIMA-PERCEIVE") {
     strReturnvalue = "&knowrob;VisualPerception";
-  } else {
-    strReturnvalue = "&knowrob;Event";
+  } else if(strName == "AT-LOCATION") {
+    strReturnvalue = "&knowrob;AtLocation";
   }
   
   return strReturnvalue;

@@ -13,6 +13,7 @@
 // Private
 #include <planlogging/CPlanLogger.h>
 #include <planlogging/CImageCapturer.h>
+#include <export/CExporterDot.h>
 
 
 class CPlanLoggerROS : public CPlanLogger {

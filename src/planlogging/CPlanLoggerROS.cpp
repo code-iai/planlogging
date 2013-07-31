@@ -217,33 +217,40 @@ bool CPlanLoggerROS::serviceCallbackControl(designator_integration_msgs::Designa
 	string strFilename = desigRequest->stringValue("filename");
 	
 	if(strFilename != "") {
-	  int nMaxDetailLevel = (int)desigRequest->floatValue("max-detail-level");
-	  int nSuccesses = (int)desigRequest->floatValue("show-successes");
-	  int nFails = (int)desigRequest->floatValue("show-fails");
-	  bool bSuccesses = (nSuccesses == 1 ? true : false);
-	  bool bFails = (nFails == 1 ? true : false);
+	  CExporterDot* expDot = new CExporterDot();
+	  this->configureExporter(expDot);
 	  
-	  string strContents = this->generateDotDiGraph(bSuccesses, bFails, nMaxDetailLevel);
-	  
-	  ofstream myfile;
-	  string strFullFilename = this->experimentPath() + strFilename;
-	  myfile.open(strFullFilename.c_str());
-	  myfile << strContents;
-	  myfile.close();
-	  
-	  ROS_INFO("Extracted plan nodes to .dot digraph in file '%s'.", strFilename.c_str());
-	  ROS_INFO("Options:");
-	  if(bSuccesses) {
-	    ROS_INFO(" - show successes = yes");
+	  if(expDot->runExporter(NULL)) {
+	    bReturnvalue = true;
 	  }
 	  
-	  if(bFails) {
-	    ROS_INFO(" - show fails = yes");
-	  }
+	  // int nMaxDetailLevel = (int)desigRequest->floatValue("max-detail-level");
+	  // int nSuccesses = (int)desigRequest->floatValue("show-successes");
+	  // int nFails = (int)desigRequest->floatValue("show-fails");
+	  // bool bSuccesses = (nSuccesses == 1 ? true : false);
+	  // bool bFails = (nFails == 1 ? true : false);
 	  
-	  ROS_INFO(" - max detail level = %d", nMaxDetailLevel);
+	  // string strContents = this->generateDotDiGraph(bSuccesses, bFails, nMaxDetailLevel);
 	  
-	  bReturnvalue = true;
+	  // ofstream myfile;
+	  // string strFullFilename = this->experimentPath() + strFilename;
+	  // myfile.open(strFullFilename.c_str());
+	  // myfile << strContents;
+	  // myfile.close();
+	  
+	  // ROS_INFO("Extracted plan nodes to .dot digraph in file '%s'.", strFilename.c_str());
+	  // ROS_INFO("Options:");
+	  // if(bSuccesses) {
+	  //   ROS_INFO(" - show successes = yes");
+	  // }
+	  
+	  // if(bFails) {
+	  //   ROS_INFO(" - show fails = yes");
+	  // }
+	  
+	  // ROS_INFO(" - max detail level = %d", nMaxDetailLevel);
+	  
+	  // bReturnvalue = true;
 	}
       } else if(strFormat == "OWL") {
 	string strFilename = desigRequest->stringValue("filename");

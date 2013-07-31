@@ -79,18 +79,34 @@ add_library(PlanLoggingROS
   src/planlogging/CPlanLoggerROS.cpp
   src/planlogging/CImageCapturer.cpp)
 
+add_library(LogExporter
+  src/export/CExporter.cpp
+  src/export/CExporterDot.cpp
+  src/export/CNode.cpp)
+
 add_dependencies(PlanLogging designator_integration_generate_messages_cpp message_generation message_runtime)
+add_dependencies(LogExporter designator_integration_generate_messages_cpp message_generation message_runtime)
 add_dependencies(PlanLoggingROS PlanLogging)
 
 ## Declare a cpp executable
 add_executable(planlogger src/main.cpp)
-add_dependencies(planlogger designator_integration_generate_messages_cpp PlanLogging PlanLoggingROS)
+add_dependencies(planlogger designator_integration_generate_messages_cpp PlanLogging PlanLoggingROS LogExporter)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(planlogger_node planlogger_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
+target_link_libraries(LogExporter
+  ${catkin_LIBRARIES}
+  DesignatorIntegration
+)
+
+target_link_libraries(PlanLogging
+  ${catkin_LIBRARIES}
+  LogExporter
+)
+
 target_link_libraries(PlanLoggingROS
   ${catkin_LIBRARIES}
   PlanLogging
@@ -101,6 +117,7 @@ target_link_libraries(planlogger
   ${catkin_LIBRARIES}
   PlanLogging
   PlanLoggingROS
+  LogExporter
 )
 
 #############
