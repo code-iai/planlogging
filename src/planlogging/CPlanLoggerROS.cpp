@@ -152,7 +152,7 @@ bool bReturnvalue = false;
       if(this->activeNode()) {
 	CImageCapturer *capImage = new CImageCapturer();
 	
-	if(capImage->captureFromTopic(strImageOrigin, strImageFilename)) {
+	if(capImage->captureFromTopic(strImageOrigin, strImageFilename, this->experimentsResultRoot() + "/" + this->experimentName() + "/")) {
 	  this->activeNode()->addImage(strImageOrigin, strImageFilename);
 	  ROS_INFO("Added image '%s' (from '%s') to active node (id %d).", strImageFilename.c_str(), strImageOrigin.c_str(), this->activeNode()->id());
 	  

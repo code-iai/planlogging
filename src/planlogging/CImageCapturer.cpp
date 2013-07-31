@@ -17,9 +17,9 @@ bool CImageCapturer::fileExists(string strFileName) {
   return false;
 }
 
-void CImageCapturer::freeFilename(string& strFileName) {
+void CImageCapturer::freeFilename(string& strFileName, string strWorkingDirectory) {
   int nIndex = 0;
-  string strBase = strFileName;
+  string strBase = strWorkingDirectory + strFileName;
   
   while(this->fileExists(strBase)) {
     stringstream sts;
@@ -29,13 +29,13 @@ void CImageCapturer::freeFilename(string& strFileName) {
     
     nIndex++;
     
-    strBase = sts.str();
+    strBase = strWorkingDirectory + sts.str();
   }
   
   strFileName = strBase;
 }
 
-bool CImageCapturer::captureFromTopic(string strTopicName, string& strFileName, bool bUseFreeName) {
+bool CImageCapturer::captureFromTopic(string strTopicName, string& strFileName, string strWorkingDirectory, bool bUseFreeName) {
   int nTimeout = 100;
   bool bReturnvalue = false;
   bool bGoon = true;
@@ -66,7 +66,9 @@ bool CImageCapturer::captureFromTopic(string strTopicName, string& strFileName, 
       cv::Mat imgMat = cv_ptr->image;
       
       if(bUseFreeName) {
-	this->freeFilename(strFileName);
+	this->freeFilename(strFileName, strWorkingDirectory);
+      } else {
+	strFileName = strWorkingDirectory + strFileName;
       }
       
       cv::imwrite(strFileName, imgMat);

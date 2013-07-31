@@ -27,13 +27,13 @@ class CImageCapturer {
   sensor_msgs::Image m_imgReceived;
 
   bool fileExists(string strFileName);
-  void freeFilename(string& strFileName);
+  void freeFilename(string& strFileName, string strWorkingDirectory);
 
  public:
   CImageCapturer();
   ~CImageCapturer();
   
-  bool captureFromTopic(string strTopicName, string &strFileName, bool bUseFreeName = true);
+  bool captureFromTopic(string strTopicName, string &strFileName, string strWorkingDirectory, bool bUseFreeName = true);
   void imageCallback(const sensor_msgs::Image &imgData);
 };
 
