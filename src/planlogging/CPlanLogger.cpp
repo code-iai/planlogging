@@ -151,6 +151,16 @@ CNode* CPlanLogger::convertPlanNodeToNode(CPlanNode* pnConvert) {
     ckvpObjects->addChild(ckvpObject);
   }
   
+  // Subnodes
+  list<CPlanNode*> lstChildren = pnConvert->subnodes();
+  for(list<CPlanNode*>::iterator itChild = lstChildren.begin();
+      itChild != lstChildren.end();
+      itChild++) {
+    CPlanNode *pnCurrent = *itChild;
+    
+    ndNew->addSubnode(this->convertPlanNodeToNode(pnCurrent));
+  }
+  
   return ndNew;
 }
 
@@ -195,7 +205,7 @@ string CPlanLogger::generateDotDiGraph(CPlanNode *pnCurrent, int &nIndex, string
     sts << "n";
     sts << nIndex++;
     string strID = sts.str();
-  
+    
     // Prepare the parameter string
     string strParameters = "";
     list<CKeyValuePair*> lstDescription = pnCurrent->description();

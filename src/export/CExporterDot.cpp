@@ -26,8 +26,7 @@ bool CExporterDot::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
     
     strDot += "  " + strToplevelID + " [shape=doublecircle, style=bold, label=\"top-level\"];\n";
     
-    bool bSuccess;
-    strDot += this->generateDotStringForNodes(this->nodes(), strToplevelID, bSuccess);
+    strDot += this->generateDotStringForNodes(this->nodes(), strToplevelID);
     
     strDot += "}\n";
     
@@ -37,7 +36,7 @@ bool CExporterDot::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
   return false;
 }
 
-string CExporterDot::generateDotStringForNodes(list<CNode*> lstNodes, string strParentID, bool& bSuccess) {
+string CExporterDot::generateDotStringForNodes(list<CNode*> lstNodes, string strParentID) {
   string strDot = "";
   
   for(list<CNode*>::iterator itNode = lstNodes.begin();
@@ -85,7 +84,8 @@ string CExporterDot::generateDotStringForNodes(list<CNode*> lstNodes, string str
     strDot += "  edge [color=\"" + strEdgeColor + "\"];\n";
     strDot += "  " + strParentID + " -> " + strNodeID + ";\n";
     
-    bSuccess = true;
+    // Subnodes
+    strDot += this->generateDotStringForNodes(ndCurrent->subnodes(), strNodeID);
   }
   
   return strDot;
