@@ -219,6 +219,7 @@ bool CPlanLoggerROS::serviceCallbackControl(designator_integration_msgs::Designa
 	if(strFilename != "") {
 	  CExporterDot* expDot = new CExporterDot();
 	  this->configureExporter(expDot);
+	  expDot->setOutputFilename(this->experimentsResultRoot() + "/" + this->experimentName() + "/" + strFilename);
 	  
 	  if(expDot->runExporter(NULL)) {
 	    bReturnvalue = true;

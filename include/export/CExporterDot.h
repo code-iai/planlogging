@@ -21,7 +21,9 @@ class CExporterDot : public CExporter {
   string outputFilename();
   
   virtual bool runExporter(CKeyValuePair* ckvpConfigurationOverlay);
-  virtual string nodeIDPrefix(CNode* ndInQuestion, string strProposition);
+  string generateDotStringForNodes(list<CNode*> lstNodes, string strParentID, bool& bSuccess);
+  
+  string dotEscapeString(string strValue);
 };
 
 

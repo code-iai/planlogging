@@ -5,6 +5,7 @@
 // System
 #include <string>
 #include <list>
+#include <fstream>
 
 // Other
 #include <designators/CKeyValuePair.h>
@@ -42,6 +43,9 @@ class CExporter {
   void renewUniqueIDs();
   
   virtual string nodeIDPrefix(CNode* ndInQuestion, string strProposition);
+  bool writeToFile(string strContent, string strFilename = "");
+  
+  string replaceString(string strOriginal, string strReplaceWhat, string strReplaceBy);
 };
 
 

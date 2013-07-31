@@ -105,6 +105,7 @@ CNode* CPlanLogger::convertPlanNodeToNode(CPlanNode* pnConvert) {
   ndNew->metaInformation()->setValue(string("source"), pnConvert->source());
   ndNew->metaInformation()->setValue(string("prematurely-ended"), (pnConvert->prematurelyEnded() ? 1 : 0));
   ndNew->metaInformation()->setValue(string("detail-level"), pnConvert->detailLevel());
+  ndNew->setTitle(pnConvert->name());
   
   // Attached Images
   CKeyValuePair* ckvpImages = ndNew->metaInformation()->addChild("images");
@@ -142,8 +143,8 @@ CNode* CPlanLogger::convertPlanNodeToNode(CPlanNode* pnConvert) {
     CKeyValuePair* ckvpObject = ckvpObjects->addChild(sts.str());
     list<CKeyValuePair*> lstDescription = objCurrent->description();
     for(list<CKeyValuePair*>::iterator itPair = lstDescription.begin();
-	itPair != lstDescription.end();
-	itPair++) {
+  	itPair != lstDescription.end();
+  	itPair++) {
       ckvpObjects->addChild(*itPair);
     }
     
@@ -213,7 +214,7 @@ string CPlanLogger::generateDotDiGraph(CPlanNode *pnCurrent, int &nIndex, string
 	  sts << ckvpCurrent->floatValue();
 	  strValue = sts.str();
 	}
-    
+	
 	strValue = this->replaceString(strValue, "\n", "\\n");
 	strValue = this->replaceString(strValue, "{", "\\{");
 	strValue = this->replaceString(strValue, "}", "\\}");
@@ -221,7 +222,7 @@ string CPlanLogger::generateDotDiGraph(CPlanNode *pnCurrent, int &nIndex, string
 	strValue = this->replaceString(strValue, ">", "\\>");
 	strValue = this->replaceString(strValue, "\"", "\\\"");
 	strValue = this->replaceString(strValue, "|", "\\|/");
-    
+	
 	strParameters += "|{" + ckvpCurrent->key() + " | " + strValue + "}";
       }
     }

@@ -17,6 +17,7 @@ CNode::~CNode() {
 
 void CNode::init() {
   m_strTitle = "";
+  m_ckvpMetaInformation = new CKeyValuePair();
 }
 
 void CNode::setDescription(list<CKeyValuePair*> lstDescription) {
