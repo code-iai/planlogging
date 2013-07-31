@@ -24,7 +24,7 @@ class CExporterDot : public CExporter {
   string generateDotStringForNodes(list<CNode*> lstNodes, string strParentID);
   string generateDotImagesStringForNode(CNode *ndImages);
   string generateDotObjectsStringForNode(CNode *ndObjects);
-  
+  string generateDotStringForDescription(list<CKeyValuePair*> lstDescription);  
   string dotEscapeString(string strValue);
 };
 

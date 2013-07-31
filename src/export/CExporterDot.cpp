@@ -36,6 +36,37 @@ bool CExporterDot::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
   return false;
 }
 
+string CExporterDot::generateDotStringForDescription(list<CKeyValuePair*> lstDescription) {
+  string strDot = "";
+  
+  for(list<CKeyValuePair*>::iterator itPair = lstDescription.begin();
+      itPair != lstDescription.end();
+      itPair++) {
+    CKeyValuePair *ckvpCurrent = *itPair;
+    
+    if(ckvpCurrent->key().at(0) != '_') {
+      string strValue = "?";
+      
+      if(ckvpCurrent->type() == STRING) {
+	strValue = ckvpCurrent->stringValue();
+      } else if(ckvpCurrent->type() == FLOAT) {
+	stringstream sts;
+	sts << ckvpCurrent->floatValue();
+	strValue = sts.str();
+      } else if(ckvpCurrent->type() == POSE) {
+	strValue = "pose (?)";
+      } else if(ckvpCurrent->type() == POSESTAMPED) {
+	strValue = "pose stamped (?)";
+      }
+      
+      strValue = this->dotEscapeString(strValue);
+      strDot += "|{" + this->dotEscapeString(ckvpCurrent->key()) + " | " + strValue + "}";
+    }
+  }
+  
+  return strDot;
+}
+
 string CExporterDot::generateDotStringForNodes(list<CNode*> lstNodes, string strParentID) {
   string strDot = "";
   
@@ -55,34 +86,7 @@ string CExporterDot::generateDotStringForNodes(list<CNode*> lstNodes, string str
       strEdgeColor = "red";
     }
     
-    string strParameters = "";
-    
-    list<CKeyValuePair*> lstDescription = ndCurrent->description();
-    for(list<CKeyValuePair*>::iterator itPair = lstDescription.begin();
-	itPair != lstDescription.end();
-	itPair++) {
-      CKeyValuePair *ckvpCurrent = *itPair;
-      
-      if(ckvpCurrent->key().at(0) != '_') {
-	string strValue = "?";
-	
-	if(ckvpCurrent->type() == STRING) {
-	  strValue = ckvpCurrent->stringValue();
-	} else if(ckvpCurrent->type() == FLOAT) {
-	  stringstream sts;
-	  sts << ckvpCurrent->floatValue();
-	  strValue = sts.str();
-	} else if(ckvpCurrent->type() == POSE) {
-	  strValue = "pose (?)";
-	} else if(ckvpCurrent->type() == POSESTAMPED) {
-	  strValue = "pose stamped (?)";
-	}
-	
-	strValue = this->dotEscapeString(strValue);
-	strParameters += "|{" + this->dotEscapeString(ckvpCurrent->key()) + " | " + strValue + "}";
-      }
-    }
-    
+    string strParameters = this->generateDotStringForDescription(ndCurrent->description());
     string strLabel = "{" + this->dotEscapeString(ndCurrent->title()) + strParameters + "}";
     
     strDot += "\n  " + strNodeID + " [shape=Mrecord, style=filled, fillcolor=\"" + strFillColor + "\", label=\"" + strLabel + "\"];\n";
@@ -140,9 +144,13 @@ string CExporterDot::generateDotObjectsStringForNode(CNode *ndObjects) {
     CKeyValuePair *ckvpChild = *itChild;
     
     stringstream sts;
-    sts << ndObjects->uniqueID() << "_image_" << unIndex;
+    sts << ndObjects->uniqueID() << "_object_" << unIndex;
     
-    strDot += "  " + sts.str() + " [shape=box, label=\"some object\"];\n";
+    string strParameters = this->generateDotStringForDescription(ckvpChild->children());
+    string strTitle = "Some Object";
+    string strLabel = "{" + this->dotEscapeString(strTitle) + strParameters + "}";
+    
+    strDot += "  " + sts.str() + " [shape=box, label=\"" + strLabel + "\"];\n";
     strDot += "  " + sts.str() + " -> " + ndObjects->uniqueID() + ";\n";
   }
   
