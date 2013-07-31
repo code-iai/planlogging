@@ -89,8 +89,61 @@ string CExporterDot::generateDotStringForNodes(list<CNode*> lstNodes, string str
     strDot += "  edge [color=\"" + strEdgeColor + "\"];\n";
     strDot += "  " + strParentID + " -> " + strNodeID + ";\n";
     
+    // Images
+    strDot += this->generateDotImagesStringForNode(ndCurrent);
+    
+    // Objects
+    strDot += this->generateDotObjectsStringForNode(ndCurrent);
+    
     // Subnodes
     strDot += this->generateDotStringForNodes(ndCurrent->subnodes(), strNodeID);
+  }
+  
+  return strDot;
+}
+
+string CExporterDot::generateDotImagesStringForNode(CNode *ndImages) {
+  string strDot = "";
+  
+  CKeyValuePair *ckvpImages = ndImages->metaInformation()->childForKey("images");
+  list<CKeyValuePair*> lstChildren = ckvpImages->children();
+  
+  unsigned int unIndex = 0;
+  for(list<CKeyValuePair*>::iterator itChild = lstChildren.begin();
+      itChild != lstChildren.end();
+      itChild++, unIndex++) {
+    CKeyValuePair *ckvpChild = *itChild;
+    
+    string strOrigin = ckvpChild->stringValue("origin");
+    string strFilename = ckvpChild->stringValue("filename");
+    
+    stringstream sts;
+    sts << ndImages->uniqueID() << "_image_" << unIndex;
+    
+    strDot += "  " + sts.str() + " [shape=box, label=\"" + strOrigin + "\", width=\"6cm\", height=\"6cm\", fixedsize=true, imagescale=true, image=\"" + strFilename + "\"];\n";
+    strDot += "  " + sts.str() + " -> " + ndImages->uniqueID() + ";\n";
+  }
+  
+  return strDot;
+}
+
+string CExporterDot::generateDotObjectsStringForNode(CNode *ndObjects) {
+  string strDot = "";
+  
+  CKeyValuePair *ckvpObjects = ndObjects->metaInformation()->childForKey("objects");
+  list<CKeyValuePair*> lstChildren = ckvpObjects->children();
+  
+  unsigned int unIndex = 0;
+  for(list<CKeyValuePair*>::iterator itChild = lstChildren.begin();
+      itChild != lstChildren.end();
+      itChild++, unIndex++) {
+    CKeyValuePair *ckvpChild = *itChild;
+    
+    stringstream sts;
+    sts << ndObjects->uniqueID() << "_image_" << unIndex;
+    
+    strDot += "  " + sts.str() + " [shape=box, label=\"some object\"];\n";
+    strDot += "  " + sts.str() + " -> " + ndObjects->uniqueID() + ";\n";
   }
   
   return strDot;
