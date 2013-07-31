@@ -65,12 +65,17 @@ string CExporterDot::generateDotStringForNodes(list<CNode*> lstNodes, string str
       
       if(ckvpCurrent->key().at(0) != '_') {
 	string strValue = "?";
+	
 	if(ckvpCurrent->type() == STRING) {
 	  strValue = ckvpCurrent->stringValue();
 	} else if(ckvpCurrent->type() == FLOAT) {
 	  stringstream sts;
 	  sts << ckvpCurrent->floatValue();
 	  strValue = sts.str();
+	} else if(ckvpCurrent->type() == POSE) {
+	  strValue = "pose (?)";
+	} else if(ckvpCurrent->type() == POSESTAMPED) {
+	  strValue = "pose stamped (?)";
 	}
 	
 	strValue = this->dotEscapeString(strValue);
