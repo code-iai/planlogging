@@ -21,8 +21,8 @@ void CNode::init() {
 }
 
 void CNode::setDescription(list<CKeyValuePair*> lstDescription) {
-  for(list<CKeyValuePair*>::iterator itPair = m_lstDescription.begin();
-      itPair != m_lstDescription.end();
+  for(list<CKeyValuePair*>::iterator itPair = lstDescription.begin();
+      itPair != lstDescription.end();
       itPair++) {
     CKeyValuePair *ckvpPair = *itPair;
     
