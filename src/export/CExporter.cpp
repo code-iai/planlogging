@@ -111,23 +111,6 @@ bool CExporter::uniqueIDPresent(string strUniqueID) {
   return false;
 }
 
-bool CExporter::writeToFile(string strContent, string strFilename) {
-  if(strFilename == "") {
-    strFilename = this->configuration()->stringValue("filename");
-  }
-  
-  if(strFilename != "") {
-    ofstream fsFile;
-    fsFile.open(strFilename.c_str());
-    fsFile << strContent;
-    fsFile.close();
-    
-    return true;
-  }
-  
-  return false;
-}
-
 string CExporter::replaceString(string strOriginal, string strReplaceWhat, string strReplaceBy) {
   size_t found;
   

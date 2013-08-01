@@ -1,24 +1,21 @@
-#ifndef __C_EXPORTER_DOT_H__
-#define __C_EXPORTER_DOT_H__
+#ifndef __C_EXPORTER_FILEOUTPUT_H__
+#define __C_EXPORTER_FILEOUTPUT_H__
 
 
 // System
 #include <string>
 
 // Private
-#include <export/CExporter.h>
+#include <export/CExporterFileoutput.h>
 
 using namespace std;
 
 
-class CExporterDot : public CExporter {
+class CExporterDot : public CExporterFileoutput {
  private:
  public:
   CExporterDot();
   ~CExporterDot();
-  
-  void setOutputFilename(string strFilename);
-  string outputFilename();
   
   virtual bool runExporter(CKeyValuePair* ckvpConfigurationOverlay);
   string generateDotStringForNodes(list<CNode*> lstNodes, string strParentID);
@@ -29,4 +26,4 @@ class CExporterDot : public CExporter {
 };
 
 
-#endif /* __C_EXPORTER_DOT_H__ */
+#endif /* __C_EXPORTER_FILEOUTPUT_H__ */

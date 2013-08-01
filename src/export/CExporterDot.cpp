@@ -7,14 +7,6 @@ CExporterDot::CExporterDot() {
 CExporterDot::~CExporterDot() {
 }
 
-void CExporterDot::setOutputFilename(string strFilename) {
-  this->configuration()->setValue("filename", strFilename);
-}
-
-string CExporterDot::outputFilename() {
-  return this->configuration()->stringValue("filename");
-}
-
 bool CExporterDot::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
   this->renewUniqueIDs();
   

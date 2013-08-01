@@ -82,6 +82,8 @@ add_library(PlanLoggingROS
 add_library(LogExporter
   src/export/CExporter.cpp
   src/export/CExporterDot.cpp
+  src/export/CExporterOwl.cpp
+  src/export/CExporterFileoutput.cpp
   src/export/CNode.cpp)
 
 add_dependencies(PlanLogging designator_integration_generate_messages_cpp message_generation message_runtime)
