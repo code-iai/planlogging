@@ -38,7 +38,7 @@ class CExporterOwl : public CExporterFileoutput {
   string generateTimepointIndividuals(string strNamespace);
   
   string owlClassForNode(CNode *ndNode);
-  
+  string owlClassForObject(CKeyValuePair *ckvpObject);  
   virtual string nodeIDPrefix(CNode* ndInQuestion, string strProposition);
   
   virtual bool runExporter(CKeyValuePair* ckvpConfigurationOverlay);

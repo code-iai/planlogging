@@ -197,6 +197,7 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
       itNode++) {
     CNode *ndCurrent = *itNode;
     
+    string strOwlClass = this->owlClassForNode(ndCurrent);
     strDot += this->generateEventIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
     
     stringstream stsTimeStart;
@@ -205,7 +206,7 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
     stsTimeEnd << (int)ndCurrent->metaInformation()->floatValue("time-end");
     
     strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
-    strDot += "        <rdf:type rdf:resource=\"" + this->owlClassForNode(ndCurrent) + "\"/>\n";
+    strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
     strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + stsTimeStart.str() + "\"/>\n";
     strDot += "        <knowrob:endTime rdf:resource=\"&" + strNamespace + ";timepoint_" + stsTimeEnd.str() + "\"/>\n";
     
@@ -231,6 +232,26 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
       strDot += "        <knowrob:postEvent rdf:resource=\"&" + strNamespace + ";" + (*itPostEvent)->uniqueID() + "\"/>\n";
     }
     
+    // Object references here.
+    CKeyValuePair *ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
+    list<CKeyValuePair*> lstObjects = ckvpObjects->children();
+    
+    unsigned int unIndex = 0;
+    for(list<CKeyValuePair*>::iterator itObject = lstObjects.begin();
+	itObject != lstObjects.end();
+	itObject++, unIndex++) {
+      CKeyValuePair *ckvpObject = *itObject;
+      
+      stringstream sts;
+      sts << ndCurrent->uniqueID() << "_object_" << unIndex;
+      
+      if(strOwlClass == "&knowrob;VisualPerception") {
+	strDot += "        <knowrob:detectedObject rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
+      } else {
+	strDot += "        <knowrob:objectActedOn rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
+      }
+    }
+    
     strDot += "    </owl:namedIndividual>\n\n";
   }
   
@@ -244,6 +265,10 @@ string CExporterOwl::generateEventIndividuals(string strNamespace) {
   return strDot;
 }
 
+string CExporterOwl::owlClassForObject(CKeyValuePair *ckvpObject) {
+  return "&knowrob;Thing";
+}
+
 string CExporterOwl::generateObjectIndividualsForNodes(list<CNode*> lstNodes, string strNamespace) {
   string strDot = "";
   
@@ -252,7 +277,24 @@ string CExporterOwl::generateObjectIndividualsForNodes(list<CNode*> lstNodes, st
       itNode++) {
     CNode *ndCurrent = *itNode;
     
-    // Implement this
+    CKeyValuePair *ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
+    list<CKeyValuePair*> lstObjects = ckvpObjects->children();
+    
+    unsigned int unIndex = 0;
+    for(list<CKeyValuePair*>::iterator itObject = lstObjects.begin();
+	itObject != lstObjects.end();
+	itObject++, unIndex++) {
+      CKeyValuePair *ckvpObject = *itObject;
+      
+      stringstream sts;
+      sts << ndCurrent->uniqueID() << "_object_" << unIndex;
+      
+      string strOwlClass = this->owlClassForObject(ckvpObject);
+      strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
+      strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
+      
+      strDot += "    </owl:namedIndividual>\n\n";
+    }
   }
   
   return strDot;
