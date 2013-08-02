@@ -284,33 +284,40 @@ bool CPlanLoggerROS::serviceCallbackControl(designator_integration_msgs::Designa
 	  } else {
 	    ROS_WARN("Failed to export .owl file.");
 	  }
-	  
-	  // int nMaxDetailLevel = (int)desigRequest->floatValue("max-detail-level");
-	  // int nSuccesses = (int)desigRequest->floatValue("show-successes");
-	  // int nFails = (int)desigRequest->floatValue("show-fails");
-	  // bool bSuccesses = (nSuccesses == 1 ? true : false);
-	  // bool bFails = (nFails == 1 ? true : false);
-	  
-	  // string strContents = this->generateOWL(bSuccesses, bFails, nMaxDetailLevel);
-	  
-	  // string strFullFilename = this->experimentPath() + strFilename;
-	  // ofstream myfile;
-	  // myfile.open(strFullFilename.c_str());
-	  // myfile << strContents;
-	  // myfile.close();
-	  
-	  // ROS_INFO("Extracted plan nodes to .owl in file '%s'.", strFilename.c_str());
-	  // ROS_INFO("Options:");
-	  // if(bSuccesses) {
-	  //   ROS_INFO(" - show successes = yes");
-	  // }
-	  
-	  // if(bFails) {
-	  //   ROS_INFO(" - show fails = yes");
-	  // }
-	  
-	  // bReturnvalue = true;
 	}
+      } else if(strFormat == "MONGO") {
+	string strDatabase = desigRequest->stringValue("database");
+	string strCollection = desigRequest->stringValue("collection");
+	
+	CExporterMongoDB *expMongo = new CExporterMongoDB();
+	expMongo->configuration()->setValue(string("display-successes"), (int)desigRequest->floatValue("show-successes"));
+	expMongo->configuration()->setValue(string("display-failures"), (int)desigRequest->floatValue("show-fails"));
+	expMongo->configuration()->setValue(string("max-detail-level"), (int)desigRequest->floatValue("max-detail-level"));
+	this->configureExporter(expMongo);
+	
+	if(expMongo->runExporter(NULL)) {
+	  int nMaxDetailLevel = (int)desigRequest->floatValue("max-detail-level");
+	  int nSuccesses = (int)desigRequest->floatValue("show-successes");
+	  int nFails = (int)desigRequest->floatValue("show-fails");
+	  bool bSuccesses = (nSuccesses == 1 ? true : false);
+	  bool bFails = (nFails == 1 ? true : false);
+	  
+	  ROS_INFO("Extracted plan nodes to MongoDB '%s/%s'.", strDatabase.c_str(), strCollection.c_str());
+	  ROS_INFO("Options:");
+	  if(bSuccesses) {
+	    ROS_INFO(" - show successes = yes");
+	  }
+	  
+	  if(bFails) {
+	    ROS_INFO(" - show fails = yes");
+	  }
+	  
+	  ROS_INFO(" - max detail level = %d", nMaxDetailLevel);
+	  
+	  bReturnvalue = true;
+	}
+	
+	delete expMongo;
       } else {
 	ROS_WARN("Unknown output format: '%s'", strFormat.c_str());
       }

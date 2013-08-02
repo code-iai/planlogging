@@ -103,6 +103,7 @@ add_dependencies(planlogger designator_integration_generate_messages_cpp PlanLog
 target_link_libraries(LogExporter
   ${catkin_LIBRARIES}
   DesignatorIntegration
+  mongoclient
 )
 
 target_link_libraries(PlanLogging
