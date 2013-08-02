@@ -14,6 +14,7 @@
 #include <planlogging/CPlanLogger.h>
 #include <planlogging/CImageCapturer.h>
 #include <export/CExporterDot.h>
+#include <export/CExporterOwl.h>
 
 
 class CPlanLoggerROS : public CPlanLogger {

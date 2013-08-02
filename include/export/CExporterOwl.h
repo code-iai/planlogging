@@ -13,12 +13,12 @@ using namespace std;
 
 
 class CExporterOwl : public CExporterFileoutput {
- public:
+ private:
   list< pair<string, string> > m_lstEntities;
   
   void addEntity(string strNickname, string strNamespace);
   
- private:
+ public:
   CExporterOwl();
   ~CExporterOwl();
   
@@ -31,13 +31,15 @@ class CExporterOwl : public CExporterFileoutput {
   string generateOwlImports(string strNamespace);
   string generatePropertyDefinitions();
   string generateClassDefinitions();
-  string generateEventIndividualsForNodes(list<CNode*> lstNodes);
-  string generateEventIndividuals();
-  string generateObjectIndividualsForNodes(list<CNode*> lstNodes);
-  string generateObjectIndividuals();
+  string generateEventIndividualsForNodes(list<CNode*> lstNodes, string strNamespace);
+  string generateEventIndividuals(string strNamespace);
+  string generateObjectIndividualsForNodes(list<CNode*> lstNodes, string strNamespace);
+  string generateObjectIndividuals(string strNamespace);
   string generateTimepointIndividuals(string strNamespace);
   
   string owlClassForNode(CNode *ndNode);
+  
+  virtual string nodeIDPrefix(CNode* ndInQuestion, string strProposition);
   
   virtual bool runExporter(CKeyValuePair* ckvpConfigurationOverlay);
   string owlEscapeString(string strValue);

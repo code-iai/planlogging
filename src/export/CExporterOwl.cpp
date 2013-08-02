@@ -63,7 +63,7 @@ string CExporterOwl::generateOwlImports(string strNamespace) {
   strDot += "    <owl:Ontology rdf:about=\"" + strNamespace + "\">\n";
   strDot += "        <owl:imports rdf:resource=\"http://ias.cs.tum.edu/kb/knowrob.owl\"/>\n";
   strDot += "    </owl:Ontology>\n\n";
-
+  
   return strDot;
 }
 
@@ -71,13 +71,13 @@ string CExporterOwl::generatePropertyDefinitions() {
   string strDot = "    <!-- Property Definitions -->\n\n";
   
   list<string> lstProperties;
-  lstProperties.push_back("http://ias.cs.tum.edu/kb/knowrob.owl#startTime");
-  lstProperties.push_back("http://ias.cs.tum.edu/kb/knowrob.owl#endTime");
-  lstProperties.push_back("http://ias.cs.tum.edu/kb/knowrob.owl#preEvent");
-  lstProperties.push_back("http://ias.cs.tum.edu/kb/knowrob.owl#postEvent");
-  lstProperties.push_back("http://ias.cs.tum.edu/kb/knowrob.owl#subAction");
-  lstProperties.push_back("http://ias.cs.tum.edu/kb/knowrob.owl#detectedObject");
-  lstProperties.push_back("http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn");
+  lstProperties.push_back("&knowrob;startTime");
+  lstProperties.push_back("&knowrob;endTime");
+  lstProperties.push_back("&knowrob;preEvent");
+  lstProperties.push_back("&knowrob;postEvent");
+  lstProperties.push_back("&knowrob;subAction");
+  lstProperties.push_back("&knowrob;detectedObject");
+  lstProperties.push_back("&knowrob;objectActedOn");
   
   for(list<string>::iterator itProperty = lstProperties.begin();
       itProperty != lstProperties.end();
@@ -179,32 +179,88 @@ string CExporterOwl::generateClassDefinitions() {
   return strDot;
 }
 
-string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes) {
+string CExporterOwl::nodeIDPrefix(CNode* ndInQuestion, string strProposition) {
+  string strPrefix = CExporter::nodeIDPrefix(ndInQuestion, strProposition);
+  
+  if(ndInQuestion->title() == "WITH-DESIGNATORS") {
+    strPrefix = "with_designators_";
+  }
+  
+  return strPrefix;
+}
+
+string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, string strNamespace) {
   string strDot = "";
   
-  // Implement this
+  for(list<CNode*>::iterator itNode = lstNodes.begin();
+      itNode != lstNodes.end();
+      itNode++) {
+    CNode *ndCurrent = *itNode;
+    
+    strDot += this->generateEventIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
+    
+    stringstream stsTimeStart;
+    stsTimeStart << (int)ndCurrent->metaInformation()->floatValue("time-start");
+    stringstream stsTimeEnd;
+    stsTimeEnd << (int)ndCurrent->metaInformation()->floatValue("time-end");
+    
+    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
+    strDot += "        <rdf:type rdf:resource=\"" + this->owlClassForNode(ndCurrent) + "\"/>\n";
+    strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + stsTimeStart.str() + "\"/>\n";
+    strDot += "        <knowrob:endTime rdf:resource=\"&" + strNamespace + ";timepoint_" + stsTimeEnd.str() + "\"/>\n";
+    
+    list<CNode*> lstSubnodes = ndCurrent->subnodes();
+    for(list<CNode*>::iterator itSubnode = lstSubnodes.begin();
+	itSubnode != lstSubnodes.end();
+	itSubnode++) {
+      CNode *ndSubnode = *itSubnode;
+      
+      strDot += "        <knowrob:subAction rdf:resource=\"&" + strNamespace + ";" + ndSubnode->uniqueID() + "\"/>\n";
+    }
+    
+    if(itNode != lstNodes.begin()) {
+      list<CNode*>::iterator itPreEvent = itNode;
+      itPreEvent--;
+      
+      strDot += "        <knowrob:preEvent rdf:resource=\"&" + strNamespace + ";" + (*itPreEvent)->uniqueID() + "\"/>\n";
+    }
+    
+    list<CNode*>::iterator itPostEvent = itNode;
+    itPostEvent++;
+    if(itPostEvent != lstNodes.end()) {
+      strDot += "        <knowrob:postEvent rdf:resource=\"&" + strNamespace + ";" + (*itPostEvent)->uniqueID() + "\"/>\n";
+    }
+    
+    strDot += "    </owl:namedIndividual>\n\n";
+  }
   
   return strDot;
 }
 
-string CExporterOwl::generateEventIndividuals() {
+string CExporterOwl::generateEventIndividuals(string strNamespace) {
   string strDot = "    <!-- Event Individuals -->\n\n";
-  strDot += this->generateEventIndividualsForNodes(this->nodes());
+  strDot += this->generateEventIndividualsForNodes(this->nodes(), strNamespace);
   
   return strDot;
 }
 
-string CExporterOwl::generateObjectIndividualsForNodes(list<CNode*> lstNodes) {
+string CExporterOwl::generateObjectIndividualsForNodes(list<CNode*> lstNodes, string strNamespace) {
   string strDot = "";
   
-  // Implement this
+  for(list<CNode*>::iterator itNode = lstNodes.begin();
+      itNode != lstNodes.end();
+      itNode++) {
+    CNode *ndCurrent = *itNode;
+    
+    // Implement this
+  }
   
   return strDot;
 }
 
-string CExporterOwl::generateObjectIndividuals() {
+string CExporterOwl::generateObjectIndividuals(string strNamespace) {
   string strDot = "    <!-- Object Individuals -->\n\n";
-  strDot += this->generateObjectIndividualsForNodes(this->nodes());
+  strDot += this->generateObjectIndividualsForNodes(this->nodes(), strNamespace);
   
   return strDot;
 }
@@ -297,8 +353,8 @@ bool CExporterOwl::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
     strOwl += this->generateOwlImports(strNamespace);
     strOwl += this->generatePropertyDefinitions();
     strOwl += this->generateClassDefinitions();
-    strOwl += this->generateEventIndividuals();
-    strOwl += this->generateObjectIndividuals();
+    strOwl += this->generateEventIndividuals(strNamespaceID);
+    strOwl += this->generateObjectIndividuals(strNamespaceID);
     strOwl += this->generateTimepointIndividuals(strNamespaceID);
     strOwl += "</rdf:RDF>\n";
     
