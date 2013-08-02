@@ -185,6 +185,7 @@ string CExporterOwl::nodeIDPrefix(CNode* ndInQuestion, string strProposition) {
 string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, string strNamespace) {
   string strDot = "";
   
+  CNode *ndLastDisplayed = NULL;
   for(list<CNode*>::iterator itNode = lstNodes.begin();
       itNode != lstNodes.end();
       itNode++) {
@@ -204,23 +205,27 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
 	  itSubnode != lstSubnodes.end();
 	  itSubnode++) {
 	CNode *ndSubnode = *itSubnode;
-      
-	strDot += "        <knowrob:subAction rdf:resource=\"&" + strNamespace + ";" + ndSubnode->uniqueID() + "\"/>\n";
+	
+	if(this->nodeDisplayable(ndSubnode)) {
+	  strDot += "        <knowrob:subAction rdf:resource=\"&" + strNamespace + ";" + ndSubnode->uniqueID() + "\"/>\n";
+	}
       }
     
-      if(itNode != lstNodes.begin()) {
-	list<CNode*>::iterator itPreEvent = itNode;
-	itPreEvent--;
-      
-	strDot += "        <knowrob:preEvent rdf:resource=\"&" + strNamespace + ";" + (*itPreEvent)->uniqueID() + "\"/>\n";
+      if(ndLastDisplayed) {
+	strDot += "        <knowrob:preEvent rdf:resource=\"&" + strNamespace + ";" + ndLastDisplayed->uniqueID() + "\"/>\n";
       }
-    
+      
       list<CNode*>::iterator itPostEvent = itNode;
       itPostEvent++;
-      if(itPostEvent != lstNodes.end()) {
-	strDot += "        <knowrob:postEvent rdf:resource=\"&" + strNamespace + ";" + (*itPostEvent)->uniqueID() + "\"/>\n";
+      while(itPostEvent != lstNodes.end()) {
+	if(this->nodeDisplayable(*itPostEvent)) {
+	  strDot += "        <knowrob:postEvent rdf:resource=\"&" + strNamespace + ";" + (*itPostEvent)->uniqueID() + "\"/>\n";
+	  break;
+	}
+	
+	itPostEvent++;
       }
-    
+      
       // Object references here.
       CKeyValuePair *ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
       list<CKeyValuePair*> lstObjects = ckvpObjects->children();
@@ -242,6 +247,7 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
       }
     
       strDot += "    </owl:namedIndividual>\n\n";
+      ndLastDisplayed = ndCurrent;
     }
   }
   
