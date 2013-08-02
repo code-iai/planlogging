@@ -38,6 +38,7 @@ string CExporterDot::generateDotStringForDescription(list<CKeyValuePair*> lstDes
     
     if(ckvpCurrent->key().at(0) != '_') {
       string strValue = "?";
+      bool bEscape = true;
       
       if(ckvpCurrent->type() == STRING) {
 	strValue = ckvpCurrent->stringValue();
@@ -46,12 +47,42 @@ string CExporterDot::generateDotStringForDescription(list<CKeyValuePair*> lstDes
 	sts << ckvpCurrent->floatValue();
 	strValue = sts.str();
       } else if(ckvpCurrent->type() == POSE) {
-	strValue = "pose (?)";
+	bEscape = false;
+	geometry_msgs::Pose psPose = ckvpCurrent->poseValue();
+	stringstream stsPS;
+	
+	stsPS << "|{position |{{x | " << psPose.position.x << "} "
+	      << "|{y | " << psPose.position.y << "} "
+	      << "|{z | " << psPose.position.z << "}}} "
+	      << "|{orientation |{{x | " << psPose.orientation.x << "} "
+	      << "|{y | " <<psPose.orientation.y << "} "
+	      << "|{z | " << psPose.orientation.z << "} "
+	      << "|{w | " << psPose.orientation.w << "}}}}";
+	
+	strValue = stsPS.str();
       } else if(ckvpCurrent->type() == POSESTAMPED) {
-	strValue = "pose stamped (?)";
+	bEscape = false;
+	geometry_msgs::PoseStamped psPoseStamped = ckvpCurrent->poseStampedValue();
+	stringstream stsPS;
+	
+	stsPS << "{{frame-id | \\\"" << psPoseStamped.header.frame_id << "\\\"} "
+	      << "|{position |{{x | " << psPoseStamped.pose.position.x << "} "
+	      << "|{y | " << psPoseStamped.pose.position.y << "} "
+	      << "|{z | " << psPoseStamped.pose.position.z << "}}} "
+	      << "|{orientation |{{x | " << psPoseStamped.pose.orientation.x << "} "
+	      << "|{y | " <<psPoseStamped.pose.orientation.y << "} "
+	      << "|{z | " << psPoseStamped.pose.orientation.z << "} "
+	      << "|{w | " << psPoseStamped.pose.orientation.w << "}}}}";
+	
+	strValue = stsPS.str();
+      } else {
+	cout << "Careful: unknown type code for field (" << (int)ckvpCurrent->type() << ")" << endl;
       }
       
-      strValue = this->dotEscapeString(strValue);
+      if(bEscape) {
+	strValue = this->dotEscapeString(strValue);
+      }
+      
       strDot += "|{" + this->dotEscapeString(ckvpCurrent->key()) + " | " + strValue + "}";
     }
   }
@@ -145,7 +176,7 @@ string CExporterDot::generateDotObjectsStringForNode(CNode *ndObjects) {
     string strTitle = "Some Object";
     string strLabel = "{" + this->dotEscapeString(strTitle) + strParameters + "}";
     
-    strDot += "  " + sts.str() + " [shape=box, label=\"" + strLabel + "\"];\n";
+    strDot += "  " + sts.str() + " [shape=Mrecord, label=\"" + strLabel + "\"];\n";
     strDot += "  " + sts.str() + " -> " + ndObjects->uniqueID() + ";\n";
   }
   
