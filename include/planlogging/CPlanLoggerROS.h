@@ -15,6 +15,7 @@
 #include <planlogging/CImageCapturer.h>
 #include <export/CExporterDot.h>
 #include <export/CExporterOwl.h>
+#include <export/CExporterMongoDB.h>
 
 
 class CPlanLoggerROS : public CPlanLogger {
