@@ -112,9 +112,6 @@ CNode* CPlanLogger::convertPlanNodeToNode(CPlanNode* pnConvert) {
   ndNew->metaInformation()->setValue(string("detail-level"), pnConvert->detailLevel());
   ndNew->setTitle(pnConvert->name());
   
-  cout << "Have times: " << pnConvert->startTime() << ", " << pnConvert->endTime() << endl;
-  cout << "Have times: " << ndNew->metaInformation()->stringValue("time-start") << ", " << ndNew->metaInformation()->stringValue("time-end") << endl;
-  
   // Attached Images
   CKeyValuePair* ckvpImages = ndNew->metaInformation()->addChild("images");
   list<CImage*> lstImages = pnConvert->images();
@@ -134,8 +131,6 @@ CNode* CPlanLogger::convertPlanNodeToNode(CPlanNode* pnConvert) {
     
     unIndex++;
   }
-  ckvpImages->printPair(0);
-  cout << endl;
   
   // Attached Objects
   CKeyValuePair* ckvpObjects = ndNew->metaInformation()->addChild("objects");
@@ -160,8 +155,6 @@ CNode* CPlanLogger::convertPlanNodeToNode(CPlanNode* pnConvert) {
     
     unIndex++;
   }
-  ckvpObjects->printPair(0);
-  cout << endl;
   
   // Subnodes
   list<CPlanNode*> lstChildren = pnConvert->subnodes();
