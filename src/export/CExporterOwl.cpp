@@ -131,15 +131,8 @@ list<string> CExporterOwl::gatherTimepointsForNodes(list<CNode*> lstNodes) {
     CNode *ndCurrent = *itNode;
     
     list<string> lstTimepointsSubnodes = this->gatherTimepointsForNodes(ndCurrent->subnodes());
-    int nStartTime = ndCurrent->metaInformation()->floatValue("time-start");
-    int nEndTime = ndCurrent->metaInformation()->floatValue("time-end");
-    stringstream stsStart;
-    stsStart << nStartTime;
-    stringstream stsEnd;
-    stsEnd << nEndTime;
-    
-    lstTimepointsSubnodes.push_back(stsStart.str());
-    lstTimepointsSubnodes.push_back(stsEnd.str());
+    lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-start"));
+    lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-end"));
     
     for(list<string>::iterator itTimepointSubnode = lstTimepointsSubnodes.begin();
 	itTimepointSubnode != lstTimepointsSubnodes.end();
@@ -197,62 +190,59 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
       itNode++) {
     CNode *ndCurrent = *itNode;
     
-    string strOwlClass = this->owlClassForNode(ndCurrent);
-    strDot += this->generateEventIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
+    if(this->nodeDisplayable(ndCurrent)) {
+      string strOwlClass = this->owlClassForNode(ndCurrent);
+      strDot += this->generateEventIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
     
-    stringstream stsTimeStart;
-    stsTimeStart << (int)ndCurrent->metaInformation()->floatValue("time-start");
-    stringstream stsTimeEnd;
-    stsTimeEnd << (int)ndCurrent->metaInformation()->floatValue("time-end");
+      strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
+      strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
+      strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-start") + "\"/>\n";
+      strDot += "        <knowrob:endTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-end") + "\"/>\n";
     
-    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
-    strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
-    strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + stsTimeStart.str() + "\"/>\n";
-    strDot += "        <knowrob:endTime rdf:resource=\"&" + strNamespace + ";timepoint_" + stsTimeEnd.str() + "\"/>\n";
-    
-    list<CNode*> lstSubnodes = ndCurrent->subnodes();
-    for(list<CNode*>::iterator itSubnode = lstSubnodes.begin();
-	itSubnode != lstSubnodes.end();
-	itSubnode++) {
-      CNode *ndSubnode = *itSubnode;
+      list<CNode*> lstSubnodes = ndCurrent->subnodes();
+      for(list<CNode*>::iterator itSubnode = lstSubnodes.begin();
+	  itSubnode != lstSubnodes.end();
+	  itSubnode++) {
+	CNode *ndSubnode = *itSubnode;
       
-      strDot += "        <knowrob:subAction rdf:resource=\"&" + strNamespace + ";" + ndSubnode->uniqueID() + "\"/>\n";
-    }
-    
-    if(itNode != lstNodes.begin()) {
-      list<CNode*>::iterator itPreEvent = itNode;
-      itPreEvent--;
-      
-      strDot += "        <knowrob:preEvent rdf:resource=\"&" + strNamespace + ";" + (*itPreEvent)->uniqueID() + "\"/>\n";
-    }
-    
-    list<CNode*>::iterator itPostEvent = itNode;
-    itPostEvent++;
-    if(itPostEvent != lstNodes.end()) {
-      strDot += "        <knowrob:postEvent rdf:resource=\"&" + strNamespace + ";" + (*itPostEvent)->uniqueID() + "\"/>\n";
-    }
-    
-    // Object references here.
-    CKeyValuePair *ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
-    list<CKeyValuePair*> lstObjects = ckvpObjects->children();
-    
-    unsigned int unIndex = 0;
-    for(list<CKeyValuePair*>::iterator itObject = lstObjects.begin();
-	itObject != lstObjects.end();
-	itObject++, unIndex++) {
-      CKeyValuePair *ckvpObject = *itObject;
-      
-      stringstream sts;
-      sts << ndCurrent->uniqueID() << "_object_" << unIndex;
-      
-      if(strOwlClass == "&knowrob;VisualPerception") {
-	strDot += "        <knowrob:detectedObject rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
-      } else {
-	strDot += "        <knowrob:objectActedOn rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
+	strDot += "        <knowrob:subAction rdf:resource=\"&" + strNamespace + ";" + ndSubnode->uniqueID() + "\"/>\n";
       }
-    }
     
-    strDot += "    </owl:namedIndividual>\n\n";
+      if(itNode != lstNodes.begin()) {
+	list<CNode*>::iterator itPreEvent = itNode;
+	itPreEvent--;
+      
+	strDot += "        <knowrob:preEvent rdf:resource=\"&" + strNamespace + ";" + (*itPreEvent)->uniqueID() + "\"/>\n";
+      }
+    
+      list<CNode*>::iterator itPostEvent = itNode;
+      itPostEvent++;
+      if(itPostEvent != lstNodes.end()) {
+	strDot += "        <knowrob:postEvent rdf:resource=\"&" + strNamespace + ";" + (*itPostEvent)->uniqueID() + "\"/>\n";
+      }
+    
+      // Object references here.
+      CKeyValuePair *ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
+      list<CKeyValuePair*> lstObjects = ckvpObjects->children();
+    
+      unsigned int unIndex = 0;
+      for(list<CKeyValuePair*>::iterator itObject = lstObjects.begin();
+	  itObject != lstObjects.end();
+	  itObject++, unIndex++) {
+	CKeyValuePair *ckvpObject = *itObject;
+      
+	stringstream sts;
+	sts << ndCurrent->uniqueID() << "_object_" << unIndex;
+      
+	if(strOwlClass == "&knowrob;VisualPerception") {
+	  strDot += "        <knowrob:detectedObject rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
+	} else {
+	  strDot += "        <knowrob:objectActedOn rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
+	}
+      }
+    
+      strDot += "    </owl:namedIndividual>\n\n";
+    }
   }
   
   return strDot;

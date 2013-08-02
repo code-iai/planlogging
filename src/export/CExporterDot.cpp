@@ -66,33 +66,36 @@ string CExporterDot::generateDotStringForNodes(list<CNode*> lstNodes, string str
       itNode != lstNodes.end();
       itNode++) {
     CNode *ndCurrent = *itNode;
-    string strNodeID = ndCurrent->uniqueID();
     
-    string strFillColor;
-    string strEdgeColor;
-    if(ndCurrent->metaInformation()->floatValue("success") == 1) {
-      strFillColor = "#ddffdd";
-      strEdgeColor = "green";
-    } else {
-      strFillColor = "#ffdddd";
-      strEdgeColor = "red";
+    if(this->nodeDisplayable(ndCurrent)) {
+      string strNodeID = ndCurrent->uniqueID();
+    
+      string strFillColor;
+      string strEdgeColor;
+      if(ndCurrent->metaInformation()->floatValue("success") == 1) {
+	strFillColor = "#ddffdd";
+	strEdgeColor = "green";
+      } else {
+	strFillColor = "#ffdddd";
+	strEdgeColor = "red";
+      }
+    
+      string strParameters = this->generateDotStringForDescription(ndCurrent->description());
+      string strLabel = "{" + this->dotEscapeString(ndCurrent->title()) + strParameters + "}";
+    
+      strDot += "\n  " + strNodeID + " [shape=Mrecord, style=filled, fillcolor=\"" + strFillColor + "\", label=\"" + strLabel + "\"];\n";
+      strDot += "  edge [color=\"" + strEdgeColor + "\"];\n";
+      strDot += "  " + strParentID + " -> " + strNodeID + ";\n";
+    
+      // Images
+      strDot += this->generateDotImagesStringForNode(ndCurrent);
+    
+      // Objects
+      strDot += this->generateDotObjectsStringForNode(ndCurrent);
+    
+      // Subnodes
+      strDot += this->generateDotStringForNodes(ndCurrent->subnodes(), strNodeID);
     }
-    
-    string strParameters = this->generateDotStringForDescription(ndCurrent->description());
-    string strLabel = "{" + this->dotEscapeString(ndCurrent->title()) + strParameters + "}";
-    
-    strDot += "\n  " + strNodeID + " [shape=Mrecord, style=filled, fillcolor=\"" + strFillColor + "\", label=\"" + strLabel + "\"];\n";
-    strDot += "  edge [color=\"" + strEdgeColor + "\"];\n";
-    strDot += "  " + strParentID + " -> " + strNodeID + ";\n";
-    
-    // Images
-    strDot += this->generateDotImagesStringForNode(ndCurrent);
-    
-    // Objects
-    strDot += this->generateDotObjectsStringForNode(ndCurrent);
-    
-    // Subnodes
-    strDot += this->generateDotStringForNodes(ndCurrent->subnodes(), strNodeID);
   }
   
   return strDot;

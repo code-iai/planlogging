@@ -36,7 +36,7 @@ void CImageCapturer::freeFilename(string& strFileName, string strWorkingDirector
 }
 
 bool CImageCapturer::captureFromTopic(string strTopicName, string& strFileName, string strWorkingDirectory, bool bUseFreeName) {
-  int nTimeout = 100;
+  int nTimeout = 1000;
   bool bReturnvalue = false;
   bool bGoon = true;
   m_bReceived = false;

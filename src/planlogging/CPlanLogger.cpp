@@ -99,13 +99,21 @@ CNode* CPlanLogger::convertPlanNodeToNode(CPlanNode* pnConvert) {
   CNode *ndNew = new CNode(pnConvert->description());
   
   // Meta Information
-  ndNew->metaInformation()->setValue(string("time-start"), pnConvert->startTime());
-  ndNew->metaInformation()->setValue(string("time-end"), pnConvert->endTime());
+  stringstream stsTimeStart;
+  stsTimeStart << pnConvert->startTime();
+  stringstream stsTimeEnd;
+  stsTimeEnd << pnConvert->endTime();
+  
+  ndNew->metaInformation()->setValue(string("time-start"), stsTimeStart.str());
+  ndNew->metaInformation()->setValue(string("time-end"), stsTimeEnd.str());
   ndNew->metaInformation()->setValue(string("success"), (pnConvert->success() ? 1 : 0));
   ndNew->metaInformation()->setValue(string("source"), pnConvert->source());
   ndNew->metaInformation()->setValue(string("prematurely-ended"), (pnConvert->prematurelyEnded() ? 1 : 0));
   ndNew->metaInformation()->setValue(string("detail-level"), pnConvert->detailLevel());
   ndNew->setTitle(pnConvert->name());
+  
+  cout << "Have times: " << pnConvert->startTime() << ", " << pnConvert->endTime() << endl;
+  cout << "Have times: " << ndNew->metaInformation()->stringValue("time-start") << ", " << ndNew->metaInformation()->stringValue("time-end") << endl;
   
   // Attached Images
   CKeyValuePair* ckvpImages = ndNew->metaInformation()->addChild("images");
@@ -113,7 +121,7 @@ CNode* CPlanLogger::convertPlanNodeToNode(CPlanNode* pnConvert) {
   unsigned int unIndex = 0;
   for(list<CImage*>::iterator itImage = lstImages.begin();
       itImage != lstImages.end();
-      itImage++, unIndex++) {
+      itImage++) {
     CImage *imgCurrent = *itImage;
     
     stringstream sts;
@@ -124,16 +132,18 @@ CNode* CPlanLogger::convertPlanNodeToNode(CPlanNode* pnConvert) {
     ckvpImage->setValue(string("origin"), imgCurrent->origin());
     ckvpImage->setValue(string("filename"), imgCurrent->filename());
     
-    ckvpImages->addChild(ckvpImage);
+    unIndex++;
   }
-
+  ckvpImages->printPair(0);
+  cout << endl;
+  
   // Attached Objects
   CKeyValuePair* ckvpObjects = ndNew->metaInformation()->addChild("objects");
   list<CObject*> lstObjects = pnConvert->objects();
   unIndex = 0;
   for(list<CObject*>::iterator itObject = lstObjects.begin();
       itObject != lstObjects.end();
-      itObject++, unIndex++) {
+      itObject++) {
     CObject *objCurrent = *itObject;
     
     stringstream sts;
@@ -145,11 +155,13 @@ CNode* CPlanLogger::convertPlanNodeToNode(CPlanNode* pnConvert) {
     for(list<CKeyValuePair*>::iterator itPair = lstDescription.begin();
   	itPair != lstDescription.end();
   	itPair++) {
-      ckvpObjects->addChild(*itPair);
+      ckvpObject->addChild(*itPair);
     }
     
-    ckvpObjects->addChild(ckvpObject);
+    unIndex++;
   }
+  ckvpObjects->printPair(0);
+  cout << endl;
   
   // Subnodes
   list<CPlanNode*> lstChildren = pnConvert->subnodes();
