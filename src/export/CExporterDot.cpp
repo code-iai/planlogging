@@ -117,13 +117,13 @@ string CExporterDot::generateDotStringForNodes(list<CNode*> lstNodes, string str
       strDot += "\n  " + strNodeID + " [shape=Mrecord, style=filled, fillcolor=\"" + strFillColor + "\", label=\"" + strLabel + "\"];\n";
       strDot += "  edge [color=\"" + strEdgeColor + "\"];\n";
       strDot += "  " + strParentID + " -> " + strNodeID + ";\n";
-    
+      
       // Images
       strDot += this->generateDotImagesStringForNode(ndCurrent);
-    
+      
       // Objects
       strDot += this->generateDotObjectsStringForNode(ndCurrent);
-    
+      
       // Subnodes
       strDot += this->generateDotStringForNodes(ndCurrent->subnodes(), strNodeID);
     }

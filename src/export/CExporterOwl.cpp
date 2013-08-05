@@ -291,6 +291,8 @@ string CExporterOwl::generateObjectIndividualsForNodes(list<CNode*> lstNodes, st
       
       strDot += "    </owl:namedIndividual>\n\n";
     }
+    
+    strDot += this->generateObjectIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
   }
   
   return strDot;
