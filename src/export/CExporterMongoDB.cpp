@@ -105,25 +105,31 @@ BSONObj CExporterMongoDB::keyValuePairToBSON(CKeyValuePair *ckvpPair) {
 
 BSONObj CExporterMongoDB::generateBSONLogFromNodes(list<CNode*> lstNodes) {
   BSONObjBuilder bobBuilder;
+  BSONObjBuilder bobArray;
   
+  unsigned int unIndex = 0;
+  stringstream sts;
   for(list<CNode*>::iterator itNode = lstNodes.begin();
       itNode != lstNodes.end();
-      itNode++) {
+      itNode++, unIndex++) {
     CNode *ndCurrent = *itNode;
     
     // The node itself
     BSONObjBuilder bobNode;
     bobNode.append("title", ndCurrent->title());
-    bobNode.append("meta-information", this->keyValuePairToBSON(ndCurrent->metaInformation()));
+    bobNode.append("meta-information", this->keyValuePairToBSON(ndCurrent->metaInformation()->children()));
     bobNode.append("description", this->keyValuePairToBSON(ndCurrent->description()));
     
     // Its subnodes
-    bobNode.append("subnodes", this->generateBSONLogFromNodes(ndCurrent->subnodes()));
+    bobNode.appendElements(this->generateBSONLogFromNodes(ndCurrent->subnodes()));
     
     // Add it to the overall BSON builder
-    bobBuilder.appendElements(bobNode.obj());
+    sts.str("");
+    sts << unIndex;
+    bobArray.append(sts.str(), bobNode.obj());
   }
   
+  bobBuilder.appendArray("subnodes", bobArray.obj());
   return bobBuilder.obj();
 }
 
@@ -136,7 +142,7 @@ bool CExporterMongoDB::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
     if(dbClient) {
       string strError;
       if(dbClient->connect("localhost", strError)) {
-	dbClient->insert(this->collectionName(),
+	dbClient->insert(this->databaseName() + "." + this->collectionName(),
 			 BSON("log" << this->generateBSONLogFromNodes(this->nodes()) <<
 			      "name" << this->experimentName() <<
 			      "recorded" << Date_t(time(NULL) * 1000)));
