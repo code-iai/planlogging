@@ -290,6 +290,10 @@ bool CPlanLoggerROS::serviceCallbackControl(designator_integration_msgs::Designa
 	string strCollection = desigRequest->stringValue("collection");
 	
 	CExporterMongoDB *expMongo = new CExporterMongoDB();
+	expMongo->setDatabaseName(strDatabase);
+	expMongo->setCollectionName(strCollection);
+	expMongo->setExperimentName(this->experimentName());
+	
 	expMongo->configuration()->setValue(string("display-successes"), (int)desigRequest->floatValue("show-successes"));
 	expMongo->configuration()->setValue(string("display-failures"), (int)desigRequest->floatValue("show-fails"));
 	expMongo->configuration()->setValue(string("max-detail-level"), (int)desigRequest->floatValue("max-detail-level"));
