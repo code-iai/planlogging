@@ -768,7 +768,11 @@ bool CPlanLogger::renewSession() {
     
     m_strExperimentName = strNewName;
     mkdir(this->experimentPath().c_str(), 0777);
-    ROS_INFO("Name of new experiment is '%s'.", m_strExperimentName.c_str());
+    ROS_INFO("Name of new experiment is '%s', setting symlink accordingly.", m_strExperimentName.c_str());
+    
+    string strExpDir = this->experimentsResultRoot() + "/" + this->experimentName();
+    string strSymlinkDir = this->experimentsResultRoot() + "/current-experiment";
+    symlink(strExpDir.c_str(), strSymlinkDir.c_str());
     
     bReturnvalue = true;
   } else {
