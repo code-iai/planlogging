@@ -34,6 +34,26 @@ string CExporterMongoDB::collectionName() {
   return m_strCollectionName;
 }
 
+BSONObj CExporterMongoDB::keyValuePairToBSON(list<CKeyValuePair*> lstToBSON) {
+  BSONObjBuilder bobBuilder;
+  
+  for(list<CKeyValuePair*>::iterator itPair = lstToBSON.begin();
+      itPair != lstToBSON.end();
+      itPair++) {
+    bobBuilder.appendElements(this->keyValuePairToBSON(*itPair));
+  }
+  
+  return bobBuilder.obj();
+}
+
+BSONObj CExporterMongoDB::keyValuePairToBSON(CKeyValuePair *lstToBSON) {
+  BSONObjBuilder bobBuilder;
+  
+  // Implement this
+  
+  return bobBuilder.obj();
+}
+
 BSONObj CExporterMongoDB::generateBSONLogFromNodes(list<CNode*> lstNodes) {
   BSONObjBuilder bobBuilder;
   
@@ -42,7 +62,17 @@ BSONObj CExporterMongoDB::generateBSONLogFromNodes(list<CNode*> lstNodes) {
       itNode++) {
     CNode *ndCurrent = *itNode;
     
-    // Implement this.
+    // The node itself
+    BSONObjBuilder bobNode;
+    bobNode.append("title", ndCurrent->title());
+    bobNode.append("meta-information", this->keyValuePairToBSON(ndCurrent->metaInformation()));
+    bobNode.append("description", this->keyValuePairToBSON(ndCurrent->description()));
+    
+    // Its subnodes
+    bobNode.append("subnodes", this->generateBSONLogFromNodes(ndCurrent->subnodes()));
+    
+    // Add it to the overall BSON builder
+    bobBuilder.appendElements(bobNode.obj());
   }
   
   return bobBuilder.obj();

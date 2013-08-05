@@ -35,6 +35,8 @@ class CExporterMongoDB : public CExporter {
   void setCollectionName(string strCollectionName);
   string collectionName();
   
+  BSONObj keyValuePairToBSON(list<CKeyValuePair*> lstToBSON);
+  BSONObj keyValuePairToBSON(CKeyValuePair *lstToBSON);
   BSONObj generateBSONLogFromNodes(list<CNode*> lstNodes);
   virtual bool runExporter(CKeyValuePair* ckvpConfigurationOverlay);
 };
