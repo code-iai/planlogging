@@ -15,4 +15,5 @@ cp -r experiments/current-experiment/* packaging
 ./makedot.sh
 
 DATE_STRING=`date +"%Y-%m-%d-%H-%M-%S"`
-tar -czf log-packaged-${DATE_STRING}.tar.gz packaging/*
+mkdir -p results
+tar -czf results/log-packaged-${DATE_STRING}.tar.gz packaging/*
