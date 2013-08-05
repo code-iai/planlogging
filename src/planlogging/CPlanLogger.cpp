@@ -772,6 +772,8 @@ bool CPlanLogger::renewSession() {
     
     string strExpDir = this->experimentsResultRoot() + "/" + this->experimentName();
     string strSymlinkDir = this->experimentsResultRoot() + "/current-experiment";
+    
+    remove(strSymlinkDir.c_str());
     symlink(strExpDir.c_str(), strSymlinkDir.c_str());
     
     bReturnvalue = true;
