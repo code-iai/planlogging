@@ -20,6 +20,7 @@ class CExporterMongoDB : public CExporter {
  private:
   string m_strDatabaseName;
   string m_strCollectionName;
+  string m_strExperimentName;
   
  public:
   CExporterMongoDB();
@@ -27,6 +28,9 @@ class CExporterMongoDB : public CExporter {
   
   void setDatabaseName(string strDatabaseName);
   string databaseName();
+
+  void setExperimentName(string strExperimentName);
+  string experimentName();
   
   void setCollectionName(string strCollectionName);
   string collectionName();

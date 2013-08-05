@@ -4,6 +4,7 @@
 CExporterMongoDB::CExporterMongoDB() {
   this->setDatabaseName("");
   this->setCollectionName("");
+  this->setExperimentName("");
 }
 
 CExporterMongoDB::~CExporterMongoDB() {
@@ -15,6 +16,14 @@ void CExporterMongoDB::setDatabaseName(string strDatabaseName) {
 
 string CExporterMongoDB::databaseName() {
   return m_strDatabaseName;
+}
+
+void CExporterMongoDB::setExperimentName(string strExperimentName) {
+  m_strExperimentName = strExperimentName;
+}
+
+string CExporterMongoDB::experimentName() {
+  return m_strExperimentName;
 }
 
 void CExporterMongoDB::setCollectionName(string strCollectionName) {
@@ -48,11 +57,10 @@ bool CExporterMongoDB::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
     if(dbClient) {
       string strError;
       if(dbClient->connect("localhost", strError)) {
-	BSONObj boLog = this->generateBSONLogFromNodes(this->nodes());
-	
 	dbClient->insert(this->collectionName(),
-			 BSON("log" << boLog <<
-			      "__recorded" << Date_t(time(NULL) * 1000)));
+			 BSON("log" << this->generateBSONLogFromNodes(this->nodes()) <<
+			      "name" << this->experimentName() <<
+			      "recorded" << Date_t(time(NULL) * 1000)));
 	
 	bReturnvalue = true;
       } else {
