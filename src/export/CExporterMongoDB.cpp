@@ -46,10 +46,59 @@ BSONObj CExporterMongoDB::keyValuePairToBSON(list<CKeyValuePair*> lstToBSON) {
   return bobBuilder.obj();
 }
 
-BSONObj CExporterMongoDB::keyValuePairToBSON(CKeyValuePair *lstToBSON) {
+BSONObj CExporterMongoDB::keyValuePairToBSON(CKeyValuePair *ckvpPair) {
   BSONObjBuilder bobBuilder;
   
-  // Implement this
+  if(ckvpPair->type() == STRING) {
+    bobBuilder.append(ckvpPair->key(), ckvpPair->stringValue());
+  } else if(ckvpPair->type() == FLOAT) {
+    bobBuilder.append(ckvpPair->key(), ckvpPair->floatValue());
+  } else if(ckvpPair->type() == POSE) {
+    geometry_msgs::Pose psPose = ckvpPair->poseValue();
+    BSONObjBuilder bobTransform;
+    bobTransform.append("position",
+			BSON("x" << psPose.position.x
+			     << "y" << psPose.position.y
+			     << "z" << psPose.position.z));
+    bobTransform.append("orientation",
+			BSON("x" << psPose.orientation.x
+			     << "y" << psPose.orientation.y
+			     << "z" << psPose.orientation.z
+			     << "w" << psPose.orientation.w));
+    bobBuilder.append(ckvpPair->key(), bobTransform.obj());
+  } else if(ckvpPair->type() == POSESTAMPED) {
+    geometry_msgs::PoseStamped psPoseStamped = ckvpPair->poseStampedValue();
+    Date_t stamp = psPoseStamped.header.stamp.sec * 1000 + psPoseStamped.header.stamp.nsec / 1000000;
+    
+    BSONObjBuilder bobTransformStamped;
+    BSONObjBuilder bobTransform;
+    bobTransformStamped.append("header",
+			       BSON("seq" << psPoseStamped.header.seq
+				    << "stamp" << stamp
+				    << "frame_id" << psPoseStamped.header.frame_id));
+    bobTransform.append("position",
+    			BSON("x" << psPoseStamped.pose.position.x
+    			     << "y" << psPoseStamped.pose.position.y
+    			     << "z" << psPoseStamped.pose.position.z));
+    bobTransform.append("orientation",
+    			BSON("x" << psPoseStamped.pose.orientation.x
+    			     << "y" << psPoseStamped.pose.orientation.y
+    			     << "z" << psPoseStamped.pose.orientation.z
+    			     << "w" << psPoseStamped.pose.orientation.w));
+    bobTransformStamped.append("pose", bobTransform.obj());
+    bobBuilder.append(ckvpPair->key(), bobTransformStamped.obj());
+  } else if(ckvpPair->type() == LIST) {
+    BSONObjBuilder bobChildren;
+    list<CKeyValuePair*> lstChildren = ckvpPair->children();
+    
+    for(list<CKeyValuePair*>::iterator itChild = lstChildren.begin();
+	itChild != lstChildren.end();
+	itChild++) {
+      bobChildren.appendElements(keyValuePairToBSON(*itChild));
+    }
+    
+    bobBuilder.append(ckvpPair->key(), bobChildren.obj());
+  }
   
   return bobBuilder.obj();
 }
