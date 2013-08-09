@@ -1,16 +1,39 @@
 #include <planlogging/CPlanLogger.h>
 
 
+/*! \brief Constructor for the base CPlanLogger class.
+  
+  The constructor sets the initial values of internal variables, and
+  initialized the random number generator for generating unique node
+  IDs.
+
+*/
 CPlanLogger::CPlanLogger() {
   m_pnActive = NULL;
   
   srand(time(NULL));
 }
 
+/*! \brief Destructor for the base CPlanLogger class.
+
+  The destructor deletes all plan nodes currently stored in its memory.
+
+*/
 CPlanLogger::~CPlanLogger() {
   this->clearPlanNodes();
 }
 
+/*! \brief Adding a new plan node by name to the current hierarchy.
+
+  This function creates a new instance of type CPlanNode, assigns it
+  the given name strName, and adds this node to the current plan event
+  hierarchy level.
+  
+  \param strName Name of the new node to be placed into the hierarchy.
+  
+  \return Pointer to the newly created instance of type CPlanNode.
+
+*/
 CPlanNode* CPlanLogger::addPlanNode(string strName) {
   int nID = this->nextFreeIndex();
   CPlanNode *pnNew = new CPlanNode(nID, strName);
@@ -35,6 +58,13 @@ CPlanNode* CPlanLogger::addPlanNode(string strName) {
   return pnNew;
 }
 
+/*! \brief Sets the given plan node as currently active node in the hierarchy.
+  
+  New nodes added to the hierarchy are added as child nodes to this node.
+  
+  \param pnActive Pointer to the CPlanNode class instance used as the new hierarchy root for new nodes.
+
+*/
 void CPlanLogger::setNodeAsActive(CPlanNode *pnActive) {
   m_pnActive = pnActive;
   
@@ -76,6 +106,11 @@ CPlanNode* CPlanLogger::planNodeForID(int nID) {
   return pnFind;
 }
 
+/*! \brief Deletes all plan nodes.
+  
+  The current hierarchy is cleared and all plan nodes stored in it are deleted.
+
+*/
 void CPlanLogger::clearPlanNodes() {
   for(list<CPlanNode*>::iterator itNode = m_lstPlanNodes.begin();
       itNode != m_lstPlanNodes.end();
@@ -90,6 +125,13 @@ void CPlanLogger::clearPlanNodes() {
   cout << "Cleared all nodes from the plan log" << endl;
 }
 
+/*! \brief Get the currently active node.
+  
+  The node that is currently set as hierarchical root for new nodes is returned.
+  
+  \return Pointer to the CPlanNode instance that is the current hierarchy root node.
+
+*/
 CPlanNode* CPlanLogger::activeNode() {
   return m_pnActive;
 }
@@ -168,6 +210,13 @@ CNode* CPlanLogger::convertPlanNodeToNode(CPlanNode* pnConvert) {
   return ndNew;
 }
 
+/*! \brief Configures the given exporter with all current plan nodes.
+  
+  The currently known hierarchy of plan nodes is transferred into the given exporter in order to be processed.
+  
+  \param expConfigure The exporter to configure with the current content of the plan event log.
+
+*/
 void CPlanLogger::configureExporter(CExporter *expConfigure) {
   for(list<CPlanNode*>::iterator itNode = m_lstPlanNodes.begin();
       itNode != m_lstPlanNodes.end();
