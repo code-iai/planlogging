@@ -325,15 +325,6 @@ bool CPlanLoggerROS::serviceCallbackControl(designator_integration_msgs::Designa
       } else {
 	ROS_WARN("Unknown output format: '%s'", strFormat.c_str());
       }
-    } else if(strCommand == "USE-COLOR") {
-      int nUseColor = (int)desigRequest->floatValue("use-color");
-      bool bUseColor = (nUseColor == 1 ? true : false);
-      
-      this->setUseColor(bUseColor);
-      
-      ROS_INFO("Now using colors: %s", (bUseColor ? "yes" : "no"));
-      
-      bReturnvalue = true;
     } else {
       ROS_WARN("Unknown control command: '%s'", strCommand.c_str());
     }

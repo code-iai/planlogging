@@ -25,18 +25,12 @@ class CPlanLogger {
   list<CPlanNode*> m_lstPlanNodes;
   list<CPlanNode*> m_lstNodeList;
   CPlanNode *m_pnActive;
-  bool m_bUseColor;
   string m_strExperimentsResultRoot;
   string m_strExperimentName;
   
   string replaceString(string strOriginal, string strReplaceWhat, string strReplaceBy);
   
-  string generateDotDiGraph(CPlanNode *pnCurrent, int &nIndex, string strParentID, bool bSuccesses, bool bFails, int nMaxDetailLevel);
-  pair<string, string> generateOWL(CPlanNode *pnCurrent, int &nIndex, string strParentID, string strPreEvent, string strPostEvent, bool bSuccesses, bool bFails, int nMaxDetailLevel);
-  
   void fillPlanNodesUniqueIDs();
-  string owlTypeForPlanNode(CPlanNode *pnNode);
-  pair< string, list<string> > owlObjectsForPlanNode(CPlanNode *pnNode, string strNamespace);
   
  protected:
   void setNodeAsActive(CPlanNode *pnActive);
@@ -55,11 +49,6 @@ class CPlanLogger {
   int nextFreeIndex();
   CPlanNode* planNodeForID(int nID);
   void clearPlanNodes();
-  
-  void setUseColor(bool bUseColor);
-  
-  string generateDotDiGraph(bool bSuccesses, bool bFails, int nMaxDetailLevel);
-  string generateOWL(bool bSuccesses, bool bFails, int nMaxDetailLevel);
   
   void setExperimentsResultRoot(string strExperimentsResultRoot);
   string experimentsResultRoot();
