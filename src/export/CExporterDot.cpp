@@ -136,23 +136,26 @@ string CExporterDot::generateDotImagesStringForNode(CNode *ndImages) {
   string strDot = "";
   
   CKeyValuePair *ckvpImages = ndImages->metaInformation()->childForKey("images");
-  list<CKeyValuePair*> lstChildren = ckvpImages->children();
   
-  unsigned int unIndex = 0;
-  for(list<CKeyValuePair*>::iterator itChild = lstChildren.begin();
-      itChild != lstChildren.end();
-      itChild++, unIndex++) {
-    CKeyValuePair *ckvpChild = *itChild;
+  if(ckvpImages) {
+    list<CKeyValuePair*> lstChildren = ckvpImages->children();
+  
+    unsigned int unIndex = 0;
+    for(list<CKeyValuePair*>::iterator itChild = lstChildren.begin();
+	itChild != lstChildren.end();
+	itChild++, unIndex++) {
+      CKeyValuePair *ckvpChild = *itChild;
     
-    string strOrigin = ckvpChild->stringValue("origin");
-    string strFilename = ckvpChild->stringValue("filename");
+      string strOrigin = ckvpChild->stringValue("origin");
+      string strFilename = ckvpChild->stringValue("filename");
     
-    stringstream sts;
-    sts << ndImages->uniqueID() << "_image_" << unIndex;
+      stringstream sts;
+      sts << ndImages->uniqueID() << "_image_" << unIndex;
     
-    strDot += "  " + sts.str() + " [shape=box, label=\"" + strOrigin + "\", width=\"6cm\", height=\"6cm\", fixedsize=true, imagescale=true, image=\"" + strFilename + "\"];\n";
-    strDot += "  edge [color=\"black\", label=\"camera image\"];\n";
-    strDot += "  " + sts.str() + " -> " + ndImages->uniqueID() + ";\n";
+      strDot += "  " + sts.str() + " [shape=box, label=\"" + strOrigin + "\", width=\"6cm\", height=\"6cm\", fixedsize=true, imagescale=true, image=\"" + strFilename + "\"];\n";
+      strDot += "  edge [color=\"black\", label=\"camera image\"];\n";
+      strDot += "  " + sts.str() + " -> " + ndImages->uniqueID() + ";\n";
+    }
   }
   
   return strDot;
@@ -162,24 +165,27 @@ string CExporterDot::generateDotObjectsStringForNode(CNode *ndObjects) {
   string strDot = "";
   
   CKeyValuePair *ckvpObjects = ndObjects->metaInformation()->childForKey("objects");
-  list<CKeyValuePair*> lstChildren = ckvpObjects->children();
   
-  unsigned int unIndex = 0;
-  for(list<CKeyValuePair*>::iterator itChild = lstChildren.begin();
-      itChild != lstChildren.end();
-      itChild++, unIndex++) {
-    CKeyValuePair *ckvpChild = *itChild;
+  if(ckvpObjects) {
+    list<CKeyValuePair*> lstChildren = ckvpObjects->children();
+  
+    unsigned int unIndex = 0;
+    for(list<CKeyValuePair*>::iterator itChild = lstChildren.begin();
+	itChild != lstChildren.end();
+	itChild++, unIndex++) {
+      CKeyValuePair *ckvpChild = *itChild;
     
-    stringstream sts;
-    sts << ndObjects->uniqueID() << "_object_" << unIndex;
+      stringstream sts;
+      sts << ndObjects->uniqueID() << "_object_" << unIndex;
     
-    string strParameters = this->generateDotStringForDescription(ckvpChild->children());
-    string strTitle = "Some Object";
-    string strLabel = "{" + this->dotEscapeString(strTitle) + strParameters + "}";
+      string strParameters = this->generateDotStringForDescription(ckvpChild->children());
+      string strTitle = "Some Object";
+      string strLabel = "{" + this->dotEscapeString(strTitle) + strParameters + "}";
     
-    strDot += "  " + sts.str() + " [shape=Mrecord, label=\"" + strLabel + "\"];\n";
-    strDot += "  edge [color=\"black\", label=\"associated object\"];\n";
-    strDot += "  " + sts.str() + " -> " + ndObjects->uniqueID() + ";\n";
+      strDot += "  " + sts.str() + " [shape=Mrecord, label=\"" + strLabel + "\"];\n";
+      strDot += "  edge [color=\"black\", label=\"associated object\"];\n";
+      strDot += "  " + sts.str() + " -> " + ndObjects->uniqueID() + ";\n";
+    }
   }
   
   return strDot;

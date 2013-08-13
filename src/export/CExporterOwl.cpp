@@ -228,31 +228,34 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
       
       // Object references here.
       CKeyValuePair *ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
-      list<CKeyValuePair*> lstObjects = ckvpObjects->children();
+      
+      if(ckvpObjects) {
+	list<CKeyValuePair*> lstObjects = ckvpObjects->children();
     
-      unsigned int unIndex = 0;
-      for(list<CKeyValuePair*>::iterator itObject = lstObjects.begin();
-	  itObject != lstObjects.end();
-	  itObject++, unIndex++) {
-	CKeyValuePair *ckvpObject = *itObject;
+	unsigned int unIndex = 0;
+	for(list<CKeyValuePair*>::iterator itObject = lstObjects.begin();
+	    itObject != lstObjects.end();
+	    itObject++, unIndex++) {
+	  CKeyValuePair *ckvpObject = *itObject;
       
-	stringstream sts;
-	sts << ndCurrent->uniqueID() << "_object_" << unIndex;
+	  stringstream sts;
+	  sts << ndCurrent->uniqueID() << "_object_" << unIndex;
       
-	if(strOwlClass == "&knowrob;VisualPerception") {
-	  strDot += "        <knowrob:detectedObject rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
-	} else {
-	  strDot += "        <knowrob:objectActedOn rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
-	}
+	  if(strOwlClass == "&knowrob;VisualPerception") {
+	    strDot += "        <knowrob:detectedObject rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
+	  } else {
+	    strDot += "        <knowrob:objectActedOn rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
+	  }
 	
-	string strDesignatorID = ckvpObject->stringValue("__id");
-	if(strDesignatorID != "") {
-	  strDot += "        <knowrob:designatorID rdf:about=\"" + strDesignatorID + "\"/>\n";
+	  string strDesignatorID = ckvpObject->stringValue("__id");
+	  if(strDesignatorID != "") {
+	    strDot += "        <knowrob:designatorID rdf:about=\"" + strDesignatorID + "\"/>\n";
+	  }
 	}
-      }
     
-      strDot += "    </owl:namedIndividual>\n\n";
-      ndLastDisplayed = ndCurrent;
+	strDot += "    </owl:namedIndividual>\n\n";
+	ndLastDisplayed = ndCurrent;
+      }
     }
   }
   
@@ -279,25 +282,28 @@ string CExporterOwl::generateObjectIndividualsForNodes(list<CNode*> lstNodes, st
     CNode *ndCurrent = *itNode;
     
     CKeyValuePair *ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
-    list<CKeyValuePair*> lstObjects = ckvpObjects->children();
     
-    unsigned int unIndex = 0;
-    for(list<CKeyValuePair*>::iterator itObject = lstObjects.begin();
-	itObject != lstObjects.end();
-	itObject++, unIndex++) {
-      CKeyValuePair *ckvpObject = *itObject;
+    if(ckvpObjects) {
+      list<CKeyValuePair*> lstObjects = ckvpObjects->children();
+    
+      unsigned int unIndex = 0;
+      for(list<CKeyValuePair*>::iterator itObject = lstObjects.begin();
+	  itObject != lstObjects.end();
+	  itObject++, unIndex++) {
+	CKeyValuePair *ckvpObject = *itObject;
       
-      stringstream sts;
-      sts << ndCurrent->uniqueID() << "_object_" << unIndex;
+	stringstream sts;
+	sts << ndCurrent->uniqueID() << "_object_" << unIndex;
       
-      string strOwlClass = this->owlClassForObject(ckvpObject);
-      strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
-      strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
+	string strOwlClass = this->owlClassForObject(ckvpObject);
+	strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
+	strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
       
-      strDot += "    </owl:namedIndividual>\n\n";
+	strDot += "    </owl:namedIndividual>\n\n";
+      }
+    
+      strDot += this->generateObjectIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
     }
-    
-    strDot += this->generateObjectIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
   }
   
   return strDot;
