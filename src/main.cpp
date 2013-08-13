@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
     ros::NodeHandle nh;
     
     string strPackageName;
-    nh.param("package-name", strPackageName, string("planlogger"));
+    nh.param("package_name", strPackageName, string("planlogger"));
     
     CPlanLoggerROS *plLogger = new CPlanLoggerROS();
     plLogger->setExperimentsResultRoot(ros::package::getPath(strPackageName) + "/experiments");
