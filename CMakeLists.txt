@@ -71,9 +71,7 @@ include_directories(include
 
 add_library(PlanLogging
   src/planlogging/CPlanLogger.cpp
-  src/planlogging/CPlanNode.cpp
-  src/planlogging/CImage.cpp
-  src/planlogging/CObject.cpp)
+  src/export/CNode.cpp)
 
 add_library(PlanLoggingROS
   src/planlogging/CPlanLoggerROS.cpp
