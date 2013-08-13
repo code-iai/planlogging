@@ -194,12 +194,20 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
     if(this->nodeDisplayable(ndCurrent)) {
       string strOwlClass = this->owlClassForNode(ndCurrent);
       strDot += this->generateEventIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
-    
+      
       strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
       strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
       strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-start") + "\"/>\n";
       strDot += "        <knowrob:endTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-end") + "\"/>\n";
-    
+      
+      if(ndCurrent->title() == "GOAL-ACHIEVE") {
+	string strPattern = ndCurrent->description->childForKey("PATTERN");
+	
+	if(strPattern != "") {
+	  strDot += "        <knowrob:goalContext rdf:about=\"" + strPattern + "\"/>\n";
+	}
+      }
+      
       list<CNode*> lstSubnodes = ndCurrent->subnodes();
       for(list<CNode*>::iterator itSubnode = lstSubnodes.begin();
 	  itSubnode != lstSubnodes.end();
@@ -285,23 +293,22 @@ string CExporterOwl::generateObjectIndividualsForNodes(list<CNode*> lstNodes, st
     
     if(ckvpObjects) {
       list<CKeyValuePair*> lstObjects = ckvpObjects->children();
-    
+      
       unsigned int unIndex = 0;
       for(list<CKeyValuePair*>::iterator itObject = lstObjects.begin();
 	  itObject != lstObjects.end();
 	  itObject++, unIndex++) {
 	CKeyValuePair *ckvpObject = *itObject;
-      
+	
 	stringstream sts;
 	sts << ndCurrent->uniqueID() << "_object_" << unIndex;
-      
+	
 	string strOwlClass = this->owlClassForObject(ckvpObject);
 	strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
 	strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
-      
 	strDot += "    </owl:namedIndividual>\n\n";
       }
-    
+      
       strDot += this->generateObjectIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
     }
   }
