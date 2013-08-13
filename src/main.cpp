@@ -17,13 +17,25 @@ using namespace std;
 
 int main(int argc, char **argv) {
   ros::init(argc, argv, "planlogger");
+  int nReturnvalue = 0;
   
-  CPlanLoggerROS *plLogger = new CPlanLoggerROS();
-  plLogger->setExperimentsResultRoot(ros::package::getPath("planlogger") + "/experiments");
-  plLogger->renewSession();
+  if(ros::ok()) {
+    ros::NodeHandle nh;
+    
+    string strPackageName;
+    nh.param("package-name", strPackageName, string("planlogger"));
+    
+    CPlanLoggerROS *plLogger = new CPlanLoggerROS();
+    plLogger->setExperimentsResultRoot(ros::package::getPath(strPackageName) + "/experiments");
+    plLogger->renewSession();
+    
+    ros::spin();
+    
+    delete plLogger;
+  } else {
+    cerr << "Couldn't initialize ROS node. Something went terribly wrong here." << endl;
+    nReturnvalue = -1;
+  }
   
-  ros::spin();
-  
-  delete plLogger;
-  return 0;
+  return nReturnvalue;
 }
