@@ -244,6 +244,11 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
 	} else {
 	  strDot += "        <knowrob:objectActedOn rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
 	}
+	
+	string strDesignatorID = ckvpObject->stringValue("__id");
+	if(strDesignatorID != "") {
+	  strDot += "        <knowrob:designatorID rdf:about=\"" + strDesignatorID + "\"/>\n";
+	}
       }
     
       strDot += "    </owl:namedIndividual>\n\n";
