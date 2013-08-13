@@ -115,7 +115,7 @@ string CExporterDot::generateDotStringForNodes(list<CNode*> lstNodes, string str
       string strLabel = "{" + this->dotEscapeString(ndCurrent->title()) + strParameters + "}";
     
       strDot += "\n  " + strNodeID + " [shape=Mrecord, style=filled, fillcolor=\"" + strFillColor + "\", label=\"" + strLabel + "\"];\n";
-      strDot += "  edge [color=\"" + strEdgeColor + "\"];\n";
+      strDot += "  edge [color=\"" + strEdgeColor + "\", label=\"\"];\n";
       strDot += "  " + strParentID + " -> " + strNodeID + ";\n";
       
       // Images
@@ -151,6 +151,7 @@ string CExporterDot::generateDotImagesStringForNode(CNode *ndImages) {
     sts << ndImages->uniqueID() << "_image_" << unIndex;
     
     strDot += "  " + sts.str() + " [shape=box, label=\"" + strOrigin + "\", width=\"6cm\", height=\"6cm\", fixedsize=true, imagescale=true, image=\"" + strFilename + "\"];\n";
+    strDot += "  edge [color=\"black\", label=\"camera image\"];\n";
     strDot += "  " + sts.str() + " -> " + ndImages->uniqueID() + ";\n";
   }
   
@@ -177,6 +178,7 @@ string CExporterDot::generateDotObjectsStringForNode(CNode *ndObjects) {
     string strLabel = "{" + this->dotEscapeString(strTitle) + strParameters + "}";
     
     strDot += "  " + sts.str() + " [shape=Mrecord, label=\"" + strLabel + "\"];\n";
+    strDot += "  edge [color=\"black\", label=\"associated object\"];\n";
     strDot += "  " + sts.str() + " -> " + ndObjects->uniqueID() + ";\n";
   }
   
