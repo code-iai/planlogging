@@ -17,6 +17,7 @@ class CNode {
   string m_strUniqueID;
   int m_nID;
   
+  CNode *m_ndParent;
   list<CKeyValuePair*> m_lstDescription;
   list<CNode*> m_lstSubnodes;
   CKeyValuePair *m_ckvpMetaInformation;
@@ -38,6 +39,9 @@ class CNode {
   void setTitle(string strTitle);
   string title();
   
+  void setParent(CNode* ndParent);
+  CNode* parent();
+  
   void addSubnode(CNode* ndAdd);
   list<CNode*> subnodes();
   
@@ -47,9 +51,17 @@ class CNode {
   void setID(int nID);
   int id();
   
+  int highestID();
+  
   bool includesUniqueID(string strUniqueID);
   
   CKeyValuePair *metaInformation();
+  
+  void setPrematurelyEnded(bool bPrematurelyEnded);
+  bool prematurelyEnded();
+  
+  void addImage(string strOrigin, string strFilename);
+  void addObject(list<CKeyValuePair*> lstDescription);
 };
 
 

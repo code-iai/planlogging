@@ -51,16 +51,18 @@ bool CPlanLoggerROS::serviceCallbackStartNode(designator_integration_msgs::Desig
     
     ROS_INFO("Received start node designator of type %s (detail-level: %d).",
 	     strDesigType.c_str(), nDetailLevel);
-    CPlanNode *pnStart = this->addPlanNode(desigRequest->stringValue("_name"));
-    pnStart->setStartTime(this->getTimeStamp());
+    CNode *ndStart = this->addNode(desigRequest->stringValue("_name"));
+    ndStart->setDescription(desigRequest->children());
+    ndStart->metaInformation()->setValue(string("source"), desigRequest->stringValue("_source"));
     
-    pnStart->setDetailLevel(nDetailLevel);
-    pnStart->setDescription(desigRequest->children());
-    pnStart->setSource(desigRequest->stringValue("_source"));
+    stringstream stsTimeStart;
+    stsTimeStart << this->getTimeStamp();
+    ndStart->metaInformation()->setValue(string("time-start"), stsTimeStart.str());
+    ndStart->metaInformation()->setValue(string("detail-level"), nDetailLevel);
     
     CDesignator *desigResponse = new CDesignator();
     desigResponse->setType(ACTION);
-    desigResponse->setValue(string("_id"), pnStart->id());
+    desigResponse->setValue(string("_id"), ndStart->id());
     
     res.response.designators.push_back(desigResponse->serializeToMessage());
     
@@ -80,48 +82,50 @@ bool CPlanLoggerROS::serviceCallbackStopNode(designator_integration_msgs::Design
   if(desigRequest) {
     int nID = (int)desigRequest->floatValue("_id");
     int nSuccess = (int)desigRequest->floatValue("_success");
-    CPlanNode *pnCurrent = this->activeNode();
+    CNode *ndCurrent = this->activeNode();
     
-    if(pnCurrent) {
-      if(pnCurrent->id() == nID) {
+    if(ndCurrent) {
+      if(ndCurrent->id() == nID) {
 	ROS_INFO("Received stop node designator for ID %d (success: %s).", nID, (nSuccess ? "yes" : "no"));
 	
-	pnCurrent->setSuccess((nSuccess == 1 ? true : false));
-	pnCurrent->setEndTime(this->getTimeStamp());
+	ndCurrent->metaInformation()->setValue(string("success"), nSuccess);
+	stringstream stsTimeEnd;
+	stsTimeEnd << this->getTimeStamp();
+	ndCurrent->metaInformation()->setValue(string("time-end"), stsTimeEnd.str());
 	
-	CPlanNode *pnParent = pnCurrent->parent();
-	this->setNodeAsActive(pnParent);
+	CNode *ndParent = ndCurrent->parent();
+	this->setNodeAsActive(ndParent);
 	
-	while(pnParent) {
-	  if(pnParent->prematurelyEnded()) {
-	    pnParent = pnParent->parent();
-	    this->setNodeAsActive(pnParent);
+	while(ndParent) {
+	  if(ndParent->prematurelyEnded()) {
+	    ndParent = ndParent->parent();
+	    this->setNodeAsActive(ndParent);
 	  } else {
-	    this->setNodeAsActive(pnParent);
+	    this->setNodeAsActive(ndParent);
 	    break;
 	  }
 	}
 	
 	bReturnvalue = true;
       } else {
-	ROS_WARN("Received stop node designator for ID %d while ID %d is active.", nID, pnCurrent->id());
+	ROS_WARN("Received stop node designator for ID %d while ID %d is active.", nID, ndCurrent->id());
 	
-	CPlanNode *pnEndedPrematurely = NULL;
-	CPlanNode *pnSearchTemp = pnCurrent->parent();
+	CNode *ndEndedPrematurely = NULL;
+	CNode *ndSearchTemp = ndCurrent->parent();
 	
-	while(pnSearchTemp) {
-	  if(pnSearchTemp->id() == nID) {
-	    pnEndedPrematurely = pnSearchTemp;
-	    pnSearchTemp = NULL;
+	while(ndSearchTemp) {
+	  if(ndSearchTemp->id() == nID) {
+	    ndEndedPrematurely = ndSearchTemp;
+	    ndSearchTemp = NULL;
 	  } else {
-	    pnSearchTemp = pnSearchTemp->parent();
+	    ndSearchTemp = ndSearchTemp->parent();
 	  }
 	}
 	
-	if(pnEndedPrematurely) {
+	if(ndEndedPrematurely) {
 	  // Found the prematurely ended node in this branch
 	  ROS_INFO("Marking node %d as prematurely ended.", nID);
-	  pnEndedPrematurely->setPrematurelyEnded(true);
+	  ndEndedPrematurely->setPrematurelyEnded(true);
 	  bReturnvalue = true;
 	} else {
 	  // Didn't find the prematurely ended node in this branch
@@ -139,7 +143,7 @@ bool CPlanLoggerROS::serviceCallbackStopNode(designator_integration_msgs::Design
 }
 
 bool CPlanLoggerROS::serviceCallbackAlterNode(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-bool bReturnvalue = false;
+  bool bReturnvalue = false;
   CDesignator *desigRequest = new CDesignator(req.request.designator);
   
   if(desigRequest) {

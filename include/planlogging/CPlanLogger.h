@@ -14,7 +14,7 @@
 #include <dirent.h>
 
 // Private
-#include <planlogging/CPlanNode.h>
+#include <export/CNode.h>
 #include <export/CExporter.h>
 
 using namespace std;
@@ -22,20 +22,15 @@ using namespace std;
 
 class CPlanLogger {
  private:
-  list<CPlanNode*> m_lstPlanNodes;
-  list<CPlanNode*> m_lstNodeList;
-  CPlanNode *m_pnActive;
+  list<CNode*> m_lstNodes;
+  CNode *m_ndActive;
   string m_strExperimentsResultRoot;
   string m_strExperimentName;
   
-  string replaceString(string strOriginal, string strReplaceWhat, string strReplaceBy);
-  
-  void fillPlanNodesUniqueIDs();
-  
  protected:
-  void setNodeAsActive(CPlanNode *pnActive);
-  CPlanNode* activeNode();
-
+  void setNodeAsActive(CNode *ndActive);
+  CNode* activeNode();
+  
   string generateRandomIdentifier(string strPrefix, unsigned int unLength);
   int getTimeStamp();
   
@@ -45,10 +40,10 @@ class CPlanLogger {
   CPlanLogger();
   ~CPlanLogger();
 
-  CPlanNode* addPlanNode(string strName);
+  CNode* addNode(string strName);
   int nextFreeIndex();
-  CPlanNode* planNodeForID(int nID);
-  void clearPlanNodes();
+  CNode* nodeForID(int nID);
+  void clearNodes();
   
   void setExperimentsResultRoot(string strExperimentsResultRoot);
   string experimentsResultRoot();
@@ -58,7 +53,6 @@ class CPlanLogger {
   
   bool renewSession();
   
-  CNode* convertPlanNodeToNode(CPlanNode* pnConvert);
   void configureExporter(CExporter *expConfigure);
 };
 
