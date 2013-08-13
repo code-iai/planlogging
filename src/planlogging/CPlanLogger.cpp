@@ -216,13 +216,12 @@ CNode* CPlanLogger::activeNode() {
 
 */
 void CPlanLogger::configureExporter(CExporter *expConfigure) {
-  // for(list<CPlanNode*>::iterator itNode = m_lstPlanNodes.begin();
-  //     itNode != m_lstPlanNodes.end();
-  //     itNode++) {
-  //   CPlanNode *pnCurrent = *itNode;
-    
-  //   expConfigure->addNode(this->convertPlanNodeToNode(pnCurrent));
-  // }
+  // Fill up the nodes list in this exporter
+  for(list<CNode*>::iterator itNode = m_lstNodes.begin();
+      itNode != m_lstNodes.end();
+      itNode++) {
+    expConfigure->addNode(*itNode);
+  }
 }
 
 string CPlanLogger::generateRandomIdentifier(string strPrefix, unsigned int unLength) {
