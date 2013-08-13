@@ -5,6 +5,11 @@ CNode::CNode() {
   this->init();
 }
 
+CNode::CNode(string strTitle) {
+  this->init();
+  this->setTitle(strTitle);
+}
+
 CNode::CNode(list<CKeyValuePair*> lstDescription) {
   this->init();
   this->setDescription(lstDescription);
@@ -105,4 +110,12 @@ bool CNode::includesUniqueID(string strUniqueID) {
 
 CKeyValuePair *CNode::metaInformation() {
   return m_ckvpMetaInformation;
+}
+
+void CNode::setID(int nID) {
+  m_nID = nID;
+}
+
+int CNode::id() {
+  return m_nID;
 }

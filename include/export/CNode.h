@@ -15,6 +15,7 @@ class CNode {
  private:
   string m_strTitle;
   string m_strUniqueID;
+  int m_nID;
   
   list<CKeyValuePair*> m_lstDescription;
   list<CNode*> m_lstSubnodes;
@@ -27,6 +28,7 @@ class CNode {
 
  public:
   CNode();
+  CNode(string strTitle);
   CNode(list<CKeyValuePair*> lstDescription);
   ~CNode();
   
@@ -41,6 +43,9 @@ class CNode {
   
   void setUniqueID(string strUniqueID);
   string uniqueID();
+  
+  void setID(int nID);
+  int id();
   
   bool includesUniqueID(string strUniqueID);
   
