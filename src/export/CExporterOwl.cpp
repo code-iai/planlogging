@@ -201,7 +201,19 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
       strDot += "        <knowrob:endTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-end") + "\"/>\n";
       
       if(ndCurrent->title() == "GOAL-ACHIEVE") {
-	string strPattern = ndCurrent->description->childForKey("PATTERN");
+	list<CKeyValuePair*> lstDescription = ndCurrent->description();
+	string strPattern = "";
+	
+	for(list<CKeyValuePair*>::iterator itDesc = lstDescription.begin();
+	    itDesc != lstDescription.end();
+	    itDesc++) {
+	  CKeyValuePair *prNow = *itDesc;
+	  
+	  if(prNow->key() == "PATTERN") {
+	    strPattern = prNow->stringValue();
+	    break;
+	  }
+	}
 	
 	if(strPattern != "") {
 	  strDot += "        <knowrob:goalContext rdf:about=\"" + strPattern + "\"/>\n";
@@ -260,10 +272,10 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
 	    strDot += "        <knowrob:designatorID rdf:about=\"" + strDesignatorID + "\"/>\n";
 	  }
 	}
-    
-	strDot += "    </owl:namedIndividual>\n\n";
-	ndLastDisplayed = ndCurrent;
       }
+      
+      strDot += "    </owl:namedIndividual>\n\n";
+      ndLastDisplayed = ndCurrent;
     }
   }
   
