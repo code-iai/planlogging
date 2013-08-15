@@ -36,7 +36,7 @@ string CExporter::nodeIDPrefix(CNode* ndInQuestion, string strProposition) {
   // NOTE(winkler): Override this function in subsequent subclasses to
   // decide on unique ID prefixes according to what the content of
   // `ndInQuestion' is. In this basic implementation, the default
-  // proposition 1strProposition' is always accepted.
+  // proposition `strProposition' is always accepted.
   
   return strProposition;
 }
