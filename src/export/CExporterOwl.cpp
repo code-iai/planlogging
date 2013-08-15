@@ -232,7 +232,7 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
 	}
 	
 	if(strPattern != "") {
-	  strDot += "        <knowrob:goalContext rdf:about=\"" + strPattern + "\"/>\n";
+	  strDot += "        <knowrob:goalContext rdf:datatype=\"&xsd;string\">" + strPattern + "</knowrob:goalContext>\n";
 	}
       }
       
@@ -430,6 +430,8 @@ string CExporterOwl::generateFailureIndividualsForNodes(list<CNode*> lstNodes, s
 	strDot += "    </owl:namedIndividual>\n\n";
       }
     }
+    
+    strDot += this->generateFailureIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
   }
   
   return strDot;
@@ -559,7 +561,7 @@ bool CExporterOwl::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
   this->renewUniqueIDs();
   
   if(this->outputFilename() != "") {
-    string strOwl = "<?xml version=\"1.0\"?>\n\n";
+    string strOwl = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n\n";
     string strNamespaceID = this->generateRandomIdentifier("namespace_", 8);
     string strNamespace = "http://ias.cs.tum.edu/kb/" + strNamespaceID;
     
