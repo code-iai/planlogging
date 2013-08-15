@@ -266,11 +266,31 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
 	  } else {
 	    strDot += "        <knowrob:objectActedOn rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
 	  }
-	
+	  
 	  string strDesignatorID = ckvpObject->stringValue("__id");
 	  if(strDesignatorID != "") {
 	    strDot += "        <knowrob:designatorID rdf:about=\"" + strDesignatorID + "\"/>\n";
 	  }
+	}
+      }
+      
+      // Failure references here.
+      CKeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
+      
+      if(ckvpFailures) {
+	list<CKeyValuePair*> lstFailures = ckvpFailures->children();
+	
+	unsigned int unIndex = 0;
+	for(list<CKeyValuePair*>::iterator itFailure = lstFailures.begin();
+	    itFailure != lstFailures.end();
+	    itFailure++, unIndex++) {
+	  CKeyValuePair *ckvpFailure = *itFailure;
+	  
+	  stringstream sts;
+	  sts << ndCurrent->uniqueID() << "_failure_" << unIndex;
+	  
+	  string strCondition = ckvpFailure->stringValue("condition");
+	  strDot += "        <knowrob:failure rdf:about=\"" + this->owlEscapeString(strCondition) + "\"/>\n";
 	}
       }
       
