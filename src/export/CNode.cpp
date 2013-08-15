@@ -153,29 +153,43 @@ bool CNode::prematurelyEnded() {
   return (this->metaInformation()->floatValue("prematurely-ended") == 0 ? false : true);
 }
 
-void CNode::addImage(string strOrigin, string strFilename) {
-  CKeyValuePair* ckvpImages = this->metaInformation()->addChild("images");
+CKeyValuePair* CNode::addDescriptionListItem(string strDomain, string strPrefix) {
+  CKeyValuePair* ckvpList = this->metaInformation()->addChild(strDomain);
   
   stringstream sts;
-  sts << "image-";
-  sts << ckvpImages->children().size();
+  sts << strPrefix << "-";
+  sts << ckvpList->children().size();
   
-  CKeyValuePair* ckvpImage = ckvpImages->addChild(sts.str());
+  return ckvpList->addChild(sts.str());
+}
+
+void CNode::addImage(string strOrigin, string strFilename) {
+  CKeyValuePair* ckvpImage = this->addDescriptionListItem("images", "image");
+  
   ckvpImage->setValue(string("origin"), strOrigin);
   ckvpImage->setValue(string("filename"), strFilename);
 }
 
 void CNode::addObject(list<CKeyValuePair*> lstDescription) {
-  CKeyValuePair* ckvpObjects = this->metaInformation()->addChild("objects");
+  CKeyValuePair* ckvpObject = this->addDescriptionListItem("objects", "object");
   
-  stringstream sts;
-  sts << "object-";
-  sts << ckvpObjects->children().size();
-  
-  CKeyValuePair* ckvpObject = ckvpObjects->addChild(sts.str());
   for(list<CKeyValuePair*>::iterator itPair = lstDescription.begin();
       itPair != lstDescription.end();
       itPair++) {
     ckvpObject->addChild((*itPair)->copy());
   }
+}
+
+void CNode::addFailure(string strCondition) {
+  CKeyValuePair* ckvpFailure = this->addDescriptionListItem("failures", "failure");
+  
+  ckvpFailure->setValue(string("condition"), strCondition);
+}
+
+void CNode::setSuccess(bool bSuccess) {
+  this->metaInformation()->setValue(string("success", (bSuccess ? 1 : 0)));
+}
+
+bool CNode::success() {
+  return (this->metaInformation()->floatValue(string("success")) == 1 ? true : false);
 }
