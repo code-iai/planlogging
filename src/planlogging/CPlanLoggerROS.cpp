@@ -194,7 +194,7 @@ bool CPlanLoggerROS::serviceCallbackAlterNode(designator_integration_msgs::Desig
 	
 	this->activeNode()->addFailure(strCondition, stsTimeFail.str());
 	this->activeNode()->setSuccess(false);
-	ROS_INFO("Added failure to active node (id %d).", this->activeNode()->id());
+	ROS_INFO("Added failure to active node (id %d): '%s'", this->activeNode()->id(), strCondition.c_str());
 	
 	bReturnvalue = true;
       } else {
