@@ -188,8 +188,15 @@ bool CPlanLoggerROS::serviceCallbackAlterNode(designator_integration_msgs::Desig
       // Adding a failure to a node also means to set its success state to 'false'.
       string strCondition = desigRequest->stringValue("condition");
       
-      this->activeNode()->addFailure(strCondition);
-      this->activeNode()->setSuccess(false);
+      if(this->activeNode()) {
+	this->activeNode()->addFailure(strCondition);
+	this->activeNode()->setSuccess(false);
+	ROS_INFO("Added failure to active node (id %d).", this->activeNode()->id());
+	
+	bReturnvalue = true;
+      } else {
+	ROS_WARN("No node context available. Cannot add object while on top-level.");
+      }
     } else {
       ROS_WARN("Unknown alter command: '%s'", strCommand.c_str());
     }
