@@ -64,6 +64,7 @@ class CNode {
   void addImage(string strOrigin, string strFilename);
   void addObject(list<CKeyValuePair*> lstDescription);
   void addFailure(string strCondition, string strTimestamp);
+  void addDesignator(string strType, list<CKeyValuePair*> lstDescription, string strUniqueID);
   
   void setSuccess(bool bSuccess);
   bool success();
