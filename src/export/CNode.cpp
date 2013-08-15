@@ -180,10 +180,11 @@ void CNode::addObject(list<CKeyValuePair*> lstDescription) {
   }
 }
 
-void CNode::addFailure(string strCondition) {
+void CNode::addFailure(string strCondition, string strTimestamp) {
   CKeyValuePair* ckvpFailure = this->addDescriptionListItem("failures", "failure");
   
   ckvpFailure->setValue(string("condition"), strCondition);
+  ckvpFailure->setValue(string("time-fail"), strTimestamp);
 }
 
 void CNode::setSuccess(bool bSuccess) {

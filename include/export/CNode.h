@@ -63,7 +63,7 @@ class CNode {
   CKeyValuePair* addDescriptionListItem(string strDomain, string strPrefix);
   void addImage(string strOrigin, string strFilename);
   void addObject(list<CKeyValuePair*> lstDescription);
-  void addFailure(string strCondition);
+  void addFailure(string strCondition, string strTimestamp);
   
   void setSuccess(bool bSuccess);
   bool success();
