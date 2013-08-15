@@ -550,17 +550,8 @@ bool CExporterOwl::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
     // Prepare content
     this->prepareEntities(strNamespaceID, strNamespace);
     
-    // Assemble OWL source
-    strOwl += this->generateDocTypeBlock();
-    strOwl += this->generateXMLNSBlock(strNamespace);
-    strOwl += this->generateOwlImports(strNamespace);
-    strOwl += this->generatePropertyDefinitions();
-    strOwl += this->generateClassDefinitions();
-    strOwl += this->generateEventIndividuals(strNamespaceID);
-    strOwl += this->generateObjectIndividuals(strNamespaceID);
-    strOwl += this->generateFailureIndividuals(strNamespaceID);
-    strOwl += this->generateTimepointIndividuals(strNamespaceID);
-    strOwl += "</rdf:RDF>\n";
+    // Generate source
+    strOwl += this->generateOwlStringForNodes(this->nodes(), strNamespaceID, strNamespace);
     
     // Write the .owl file
     return this->writeToFile(strOwl);
@@ -573,10 +564,20 @@ string CExporterOwl::owlEscapeString(string strValue) {
   return strValue;
 }
 
-string CExporterOwl::generateOwlStringForNodes(list<CNode*> lstNodes) {
+string CExporterOwl::generateOwlStringForNodes(list<CNode*> lstNodes, string strNamespaceID, string strNamespace) {
   string strOwl = "";
   
-  // Generate the OWL source here
+  // Assemble OWL source
+  strOwl += this->generateDocTypeBlock();
+  strOwl += this->generateXMLNSBlock(strNamespace);
+  strOwl += this->generateOwlImports(strNamespace);
+  strOwl += this->generatePropertyDefinitions();
+  strOwl += this->generateClassDefinitions();
+  strOwl += this->generateEventIndividuals(strNamespaceID);
+  strOwl += this->generateObjectIndividuals(strNamespaceID);
+  strOwl += this->generateFailureIndividuals(strNamespaceID);
+  strOwl += this->generateTimepointIndividuals(strNamespaceID);
+  strOwl += "</rdf:RDF>\n";
   
   return strOwl;
 }

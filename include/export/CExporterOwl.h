@@ -45,7 +45,7 @@ class CExporterOwl : public CExporterFileoutput {
   
   virtual bool runExporter(CKeyValuePair* ckvpConfigurationOverlay);
   string owlEscapeString(string strValue);
-  string generateOwlStringForNodes(list<CNode*> lstNodes);
+  string generateOwlStringForNodes(list<CNode*> lstNodes, string strNamespaceID, string strNamespace);
 };
 
 
