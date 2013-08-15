@@ -285,7 +285,7 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
 	  
 	  string strDesignatorID = ckvpObject->stringValue("__id");
 	  if(strDesignatorID != "") {
-	    strDot += "        <knowrob:designatorID rdf:about=\"" + strDesignatorID + "\"/>\n";
+	    strDot += "        <knowrob:designatorID rdf:datatype=\"&xsd;string\">" + strDesignatorID + "</knowrob:designatorID>\n";
 	  }
 	}
       }
@@ -305,6 +305,22 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
 	  stringstream sts;
 	  sts << ndCurrent->uniqueID() << "_failure_" << unIndex;
 	  strDot += "        <knowrob:eventFailure rdf:resource=\"&" + strNamespace + ";" + sts.str() + "\"/>\n";
+	}
+      }
+      
+      // Designator references here.
+      CKeyValuePair *ckvpDesignators = ndCurrent->metaInformation()->childForKey("designators");
+      
+      if(ckvpDesignators) {
+	list<CKeyValuePair*> lstDesignators = ckvpDesignators->children();
+	
+	unsigned int unIndex = 0;
+	for(list<CKeyValuePair*>::iterator itDesignator = lstDesignators.begin();
+	    itDesignator != lstDesignators.end();
+	    itDesignator++, unIndex++) {
+	  CKeyValuePair *ckvpDesignator = *itDesignator;
+	  
+	  strDot += "        <knowrob:designatorID rdf:datatype=\"&xsd;string\">" + ckvpDesignator->stringValue("id") + "</knowrob:designatorID>\n";
 	}
       }
       
@@ -408,7 +424,7 @@ string CExporterOwl::generateFailureIndividualsForNodes(list<CNode*> lstNodes, s
 	}
 	
 	strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
-	strDot += "        <rdf:type rdf:resource=\"" + strFailureClass + "\"/>\n";
+	strDot += "        <rdf:type rdf:resource=\"&knowrob;" + strFailureClass + "\"/>\n";
 	strDot += "        <rdfs:label rdf:datatype=\"&xsd;string\">" + this->owlEscapeString(strCondition) + "</rdfs:label>\n";
 	strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + strTimestamp + "\"/>\n";
 	strDot += "    </owl:namedIndividual>\n\n";

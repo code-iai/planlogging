@@ -145,6 +145,8 @@ bool CPlanLoggerROS::serviceCallbackStopNode(designator_integration_msgs::Design
 bool CPlanLoggerROS::serviceCallbackAlterNode(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
   bool bReturnvalue = false;
   CDesignator *desigRequest = new CDesignator(req.request.designator);
+  CDesignator *desigResponse = new CDesignator();
+  desigResponse->setType(ACTION);
   
   if(desigRequest) {
     string strCommand = desigRequest->stringValue("command");
@@ -198,12 +200,34 @@ bool CPlanLoggerROS::serviceCallbackAlterNode(designator_integration_msgs::Desig
 	
 	bReturnvalue = true;
       } else {
-	ROS_WARN("No node context available. Cannot add object while on top-level.");
+	ROS_WARN("No node context available. Cannot add failure while on top-level.");
+      }
+    } else if(strCommand == "ADD-DESIGNATOR") {
+      CKeyValuePair *ckvpDesc = desigRequest->childForKey("description");
+      
+      if(ckvpDesc) {
+	if(this->activeNode()) {
+	  string strType = desigRequest->stringValue("type");
+	  list<CKeyValuePair*> lstDescription = ckvpDesc->children();
+	  string strUniqueID = this->generateRandomIdentifier("designator_", 14);
+	  
+	  this->activeNode()->addDesignator(strType, lstDescription, strUniqueID);
+	  ROS_INFO("Added '%s' designator to active node (id %d): '%s'", strType.c_str(), this->activeNode()->id(), strUniqueID.c_str());
+	  desigResponse->setValue("id", strUniqueID);
+	  
+	  bReturnvalue = true;
+	} else {
+	  ROS_WARN("No node context available. Cannot add designator while on top-level.");
+	}
+      } else {
+	ROS_WARN("Designator description not defined.");
       }
     } else {
       ROS_WARN("Unknown alter command: '%s'", strCommand.c_str());
     }
   }
+  
+  res.response.designators.push_back(desigResponse->serializeToMessage());
   
   return bReturnvalue;
 }
