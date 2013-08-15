@@ -78,6 +78,7 @@ string CExporterOwl::generatePropertyDefinitions() {
   lstProperties.push_back("&knowrob;subAction");
   lstProperties.push_back("&knowrob;detectedObject");
   lstProperties.push_back("&knowrob;objectActedOn");
+  lstProperties.push_back("&knowrob;eventFailure");
   
   for(list<string>::iterator itProperty = lstProperties.begin();
       itProperty != lstProperties.end();
@@ -303,7 +304,7 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
 	  
 	  stringstream sts;
 	  sts << ndCurrent->uniqueID() << "_failure_" << unIndex;
-	  strDot += "        <knowrob:failure rdf:resource=\"&" + strNamespace + ";" + sts.str() + "\"/>\n";
+	  strDot += "        <knowrob:eventFailure rdf:resource=\"&" + strNamespace + ";" + sts.str() + "\"/>\n";
 	}
       }
       
@@ -408,6 +409,7 @@ string CExporterOwl::generateFailureIndividualsForNodes(list<CNode*> lstNodes, s
 	
 	strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
 	strDot += "        <rdf:type rdf:resource=\"" + strFailureClass + "\"/>\n";
+	strDot += "        <rdfs:label rdf:datatype=\"&xsd;string\">" + this->owlEscapeString(strCondition) + "</rdfs:label>\n";
 	strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + strTimestamp + "\"/>\n";
 	strDot += "    </owl:namedIndividual>\n\n";
       }
