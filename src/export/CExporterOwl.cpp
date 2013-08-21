@@ -473,9 +473,9 @@ string CExporterOwl::generateObjectIndividualsForNodes(list<CNode*> lstNodes, st
 	strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
 	strDot += "    </owl:namedIndividual>\n\n";
       }
-      
-      strDot += this->generateObjectIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
     }
+    
+    strDot += this->generateObjectIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
   }
   
   return strDot;
