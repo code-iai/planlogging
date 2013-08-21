@@ -232,6 +232,7 @@ bool CPlanLoggerROS::serviceCallbackAlterNode(designator_integration_msgs::Desig
 	if(this->activeNode()) {
 	  this->equateDesignators(strMemAddrChild, strMemAddrParent);
 	  
+	  // TODO(winkler): Replace the memory addresses here with the appropriate individual names.
 	  ROS_INFO("Equated designators '%s' (parent) and '%s' (child).", strMemAddrParent.c_str(), strMemAddrChild.c_str());
 	  
 	  bReturnvalue = true;
