@@ -35,6 +35,7 @@ class CExporterOwl : public CExporterFileoutput {
   string generateEventIndividuals(string strNamespace);
   string generateObjectIndividualsForNodes(list<CNode*> lstNodes, string strNamespace);
   string generateObjectIndividuals(string strNamespace);
+  string generateDesignatorIndividuals(string strNamespace);
   string generateFailureIndividualsForNodes(list<CNode*> lstNodes, string strNamespace);
   string generateFailureIndividuals(string strNamespace);
   string generateTimepointIndividuals(string strNamespace);

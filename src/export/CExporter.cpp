@@ -138,3 +138,77 @@ bool CExporter::nodeDisplayable(CNode* ndDisplay) {
   
   return false;
 }
+
+void CExporter::setDesignatorIDs(list< pair<string, string> > lstDesignatorIDs) {
+  m_lstDesignatorIDs = lstDesignatorIDs;
+}
+
+void CExporter::setDesignatorEquations(list< pair<string, string> > lstDesignatorEquations) {
+  m_lstDesignatorEquations = lstDesignatorEquations;
+}
+
+void CExporter::setDesignatorEquationTimes(list< pair<string, string> > lstDesignatorEquationTimes) {
+  m_lstDesignatorEquationTimes = lstDesignatorEquationTimes;
+}
+
+list<string> CExporter::designatorIDs() {
+  list<string> lstResult;
+  
+  for(list< pair<string, string> >::iterator itPair = m_lstDesignatorIDs.begin();
+      itPair != m_lstDesignatorIDs.end();
+      itPair++) {
+    pair<string, string> prPair = *itPair;
+    lstResult.push_back(prPair.second);
+  }
+  
+  return lstResult;
+}
+
+list<string> CExporter::parentDesignatorsForID(string strID) {
+  list<string> lstResult;
+  
+  for(list< pair<string, string> >::iterator itPair = m_lstDesignatorEquations.begin();
+      itPair != m_lstDesignatorEquations.end();
+      itPair++) {
+    pair<string, string> prPair = *itPair;
+    
+    if(prPair.second == strID) {
+      lstResult.push_back(prPair.first);
+    }
+  }
+  
+  return lstResult;
+}
+
+list<string> CExporter::successorDesignatorsForID(string strID) {
+  list<string> lstResult;
+  
+  for(list< pair<string, string> >::iterator itPair = m_lstDesignatorEquations.begin();
+      itPair != m_lstDesignatorEquations.end();
+      itPair++) {
+    pair<string, string> prPair = *itPair;
+    
+    if(prPair.first == strID) {
+      lstResult.push_back(prPair.second);
+    }
+  }
+  
+  return lstResult;
+}
+
+string CExporter::equationTimeForSuccessorID(string strID) {
+  string strReturn = "";
+  
+  for(list< pair<string, string> >::iterator itPair = m_lstDesignatorEquationTimes.begin();
+      itPair != m_lstDesignatorEquationTimes.end();
+      itPair++) {
+    pair<string, string> prPair = *itPair;
+    
+    if(prPair.first == strID) {
+      strReturn = prPair.second;
+      break;
+    }
+  }
+  
+  return strReturn;
+}

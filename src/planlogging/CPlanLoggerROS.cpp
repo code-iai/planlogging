@@ -208,11 +208,13 @@ bool CPlanLoggerROS::serviceCallbackAlterNode(designator_integration_msgs::Desig
       if(ckvpDesc) {
 	if(this->activeNode()) {
 	  string strType = desigRequest->stringValue("type");
+	  string strMemAddr = desigRequest->stringValue("memory-address");
 	  list<CKeyValuePair*> lstDescription = ckvpDesc->children();
-	  string strUniqueID = this->generateRandomIdentifier("designator_", 14);
+	  
+	  string strUniqueID = this->getUniqueDesignatorID(strMemAddr);
 	  
 	  this->activeNode()->addDesignator(strType, lstDescription, strUniqueID);
-	  ROS_INFO("Added '%s' designator to active node (id %d): '%s'", strType.c_str(), this->activeNode()->id(), strUniqueID.c_str());
+	  ROS_INFO("Added '%s' designator (addr=%s) to active node (id %d): '%s'", strType.c_str(), strMemAddr.c_str(), this->activeNode()->id(), strUniqueID.c_str());
 	  desigResponse->setValue("id", strUniqueID);
 	  
 	  bReturnvalue = true;
@@ -221,6 +223,23 @@ bool CPlanLoggerROS::serviceCallbackAlterNode(designator_integration_msgs::Desig
 	}
       } else {
 	ROS_WARN("Designator description not defined.");
+      }
+    } else if(strCommand == "EQUATE-DESIGNATORS") {
+      string strMemAddrChild = desigRequest->stringValue("memory-address-child");
+      string strMemAddrParent = desigRequest->stringValue("memory-address-parent");
+      
+      if(strMemAddrChild != "" && strMemAddrParent != "") {
+	if(this->activeNode()) {
+	  this->equateDesignators(strMemAddrChild, strMemAddrParent);
+	  
+	  ROS_INFO("Equated designators '%s' (parent) and '%s' (child).", strMemAddrParent.c_str(), strMemAddrChild.c_str());
+	  
+	  bReturnvalue = true;
+	} else {
+	  ROS_WARN("No node context available. Cannot equate designators while on top-level.");
+	}
+      } else {
+	ROS_WARN("Not enough memory addresses defined when equating designators.");
       }
     } else {
       ROS_WARN("Unknown alter command: '%s'", strCommand.c_str());

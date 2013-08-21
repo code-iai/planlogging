@@ -148,6 +148,10 @@ void CPlanLogger::configureExporter(CExporter *expConfigure) {
       itNode++) {
     expConfigure->addNode(*itNode);
   }
+  
+  expConfigure->setDesignatorIDs(m_lstDesignatorIDs);
+  expConfigure->setDesignatorEquations(m_lstDesignatorEquations);
+  expConfigure->setDesignatorEquationTimes(m_lstDesignatorEquationTimes);
 }
 
 string CPlanLogger::generateRandomIdentifier(string strPrefix, unsigned int unLength) {
@@ -244,4 +248,37 @@ string CPlanLogger::experimentPath(string strExperimentName) {
   }
   
   return m_strExperimentsResultRoot + "/" + strExperimentName + "/";
+}
+
+void CPlanLogger::equateDesignators(string strMAChild, string strMAParent) {
+  string strIDChild = this->getUniqueDesignatorID(strMAChild);
+  string strIDParent = this->getUniqueDesignatorID(strMAParent);
+  
+  stringstream stsTimeEquate;
+  stsTimeEquate << this->getTimeStamp();
+  
+  m_lstDesignatorEquations.push_back(make_pair(strIDParent, strIDChild));
+  m_lstDesignatorEquationTimes.push_back(make_pair(strIDChild, stsTimeEquate.str()));
+}
+
+string CPlanLogger::getUniqueDesignatorID(string strMemoryAddress) {
+  string strID = "";
+  
+  for(list< pair<string, string> >::iterator itPair = m_lstDesignatorIDs.begin();
+      itPair != m_lstDesignatorIDs.end();
+      itPair++) {
+    pair<string, string> prPair = *itPair;
+    
+    if(prPair.first == strMemoryAddress) {
+      strID = prPair.second;
+      break;
+    }
+  }
+  
+  if(strID == "") {
+    strID = this->generateRandomIdentifier("designator_", 14);
+    m_lstDesignatorIDs.push_back(make_pair(strMemoryAddress, strID));
+  }
+  
+  return strID;
 }

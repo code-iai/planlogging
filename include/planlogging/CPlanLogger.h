@@ -23,6 +23,9 @@ using namespace std;
 class CPlanLogger {
  private:
   list<CNode*> m_lstNodes;
+  list< pair<string, string> > m_lstDesignatorIDs;
+  list< pair<string, string> > m_lstDesignatorEquations;
+  list< pair<string, string> > m_lstDesignatorEquationTimes;
   CNode *m_ndActive;
   string m_strExperimentsResultRoot;
   string m_strExperimentName;
@@ -54,6 +57,9 @@ class CPlanLogger {
   bool renewSession();
   
   void configureExporter(CExporter *expConfigure);
+  
+  string getUniqueDesignatorID(string strMemoryAddress);
+  void equateDesignators(string strMAChild, string strMAParent);
 };
 
 

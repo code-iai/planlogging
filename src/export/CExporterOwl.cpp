@@ -131,6 +131,7 @@ list<string> CExporterOwl::gatherTimepointsForNodes(list<CNode*> lstNodes) {
       itNode++) {
     CNode *ndCurrent = *itNode;
     
+    // Gather node timepoints
     list<string> lstTimepointsSubnodes = this->gatherTimepointsForNodes(ndCurrent->subnodes());
     lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-start"));
     lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-end"));
@@ -150,6 +151,14 @@ list<string> CExporterOwl::gatherTimepointsForNodes(list<CNode*> lstNodes) {
       }
     }
     
+    // Gather designator equation timepoints
+    for(list< pair<string, string> >::iterator itPair = m_lstDesignatorEquationTimes.begin();
+	itPair != m_lstDesignatorEquationTimes.end();
+	itPair++) {
+      lstTimepointsSubnodes.push_back((*itPair).second);
+    }
+    
+    // Unify all timepoints
     for(list<string>::iterator itTimepointSubnode = lstTimepointsSubnodes.begin();
 	itTimepointSubnode != lstTimepointsSubnodes.end();
 	itTimepointSubnode++) {
@@ -285,7 +294,7 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
 	  
 	  string strDesignatorID = ckvpObject->stringValue("__id");
 	  if(strDesignatorID != "") {
-	    strDot += "        <knowrob:designatorID rdf:datatype=\"&xsd;string\">" + strDesignatorID + "</knowrob:designatorID>\n";
+	    strDot += "        <knowrob:designator rdf:resource=\"&" + strNamespace + ";" + strDesignatorID + "\"/>\n";
 	  }
 	}
       }
@@ -320,7 +329,7 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
 	    itDesignator++, unIndex++) {
 	  CKeyValuePair *ckvpDesignator = *itDesignator;
 	  
-	  strDot += "        <knowrob:designatorID rdf:datatype=\"&xsd;string\">" + ckvpDesignator->stringValue("id") + "</knowrob:designatorID>\n";
+	  strDot += "        <knowrob:designator rdf:resource=\"&" + strNamespace + ";" + ckvpDesignator->stringValue("id") + "\"/>\n";
 	}
       }
       
@@ -479,6 +488,51 @@ string CExporterOwl::generateObjectIndividuals(string strNamespace) {
   return strDot;
 }
 
+string CExporterOwl::generateDesignatorIndividuals(string strNamespace) {
+  string strDot = "    <!-- Designator Individuals -->\n\n";
+  
+  list<string> lstDesigIDs = this->designatorIDs();
+  
+  for(list<string>::iterator itID = lstDesigIDs.begin();
+      itID != lstDesigIDs.end();
+      itID++) {
+    string strID = *itID;
+    
+    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + strID + "\">\n";
+    strDot += "        <rdf:type rdf:resource=\"&knowrob;CRAMDesignator\"/>\n";
+    
+    // NOTE(winkler): Don't generate properties for parent designators
+    // (single lists are enough here)
+
+    // list<string> lstParentIDs = this->parentDesignatorsForID(strID);
+    // for(list<string>::iterator itID2 = lstParentIDs.begin();
+    // 	itID2 != lstParentIDs.end();
+    // 	itID2++) {
+    //   string strID2 = *itID2;
+      
+    //   strDot += "        <knowrob:parentDesignator rdf:resource=\"&" + strNamespace + ";" + strID2 + "\"/>\n";
+    // }
+    
+    list<string> lstSuccessorIDs = this->successorDesignatorsForID(strID);
+    for(list<string>::iterator itID2 = lstSuccessorIDs.begin();
+	itID2 != lstSuccessorIDs.end();
+	itID2++) {
+      string strID2 = *itID2;
+      
+      strDot += "        <knowrob:successorDesignator rdf:resource=\"&" + strNamespace + ";" + strID2 + "\"/>\n";
+    }
+    
+    string strEquationTime = this->equationTimeForSuccessorID(strID);
+    if(strEquationTime != "") {
+      strDot += "        <knowrob:equationTime rdf:resource=\"&" + strNamespace + ";timepoint_" + strEquationTime + "\"/>\n";
+    }
+    
+    strDot += "    </owl:namedIndividual>\n\n";
+  }
+  
+  return strDot;
+}
+
 string CExporterOwl::generateFailureIndividuals(string strNamespace) {
   string strDot = "    <!-- Failure Individuals -->\n\n";
   strDot += this->generateFailureIndividualsForNodes(this->nodes(), strNamespace);
@@ -562,8 +616,11 @@ bool CExporterOwl::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
   
   if(this->outputFilename() != "") {
     string strOwl = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n\n";
-    string strNamespaceID = this->generateRandomIdentifier("namespace_", 8);
-    string strNamespace = "http://ias.cs.tum.edu/kb/" + strNamespaceID;
+    // NOTE(winkler): This used to be `random'. Changed this due to
+    // non-necessity of such a long namespace.
+    // this->generateRandomIdentifier("namespace_", 8);
+    string strNamespaceID = "log";
+    string strNamespace = "http://ias.cs.tum.edu/kb/cram_log.owl";// + strNamespaceID;
     
     // Prepare content
     this->prepareEntities(strNamespaceID, strNamespace);
@@ -593,6 +650,7 @@ string CExporterOwl::generateOwlStringForNodes(list<CNode*> lstNodes, string str
   strOwl += this->generateClassDefinitions();
   strOwl += this->generateEventIndividuals(strNamespaceID);
   strOwl += this->generateObjectIndividuals(strNamespaceID);
+  strOwl += this->generateDesignatorIndividuals(strNamespaceID);
   strOwl += this->generateFailureIndividuals(strNamespaceID);
   strOwl += this->generateTimepointIndividuals(strNamespaceID);
   strOwl += "</rdf:RDF>\n";
