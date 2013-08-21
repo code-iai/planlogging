@@ -40,7 +40,7 @@ class CExporterOwl : public CExporterFileoutput {
   string generateFailureIndividuals(string strNamespace);
   string generateTimepointIndividuals(string strNamespace);
   
-  string owlClassForNode(CNode *ndNode);
+  string owlClassForNode(CNode *ndNode, bool bClassOnly = false);
   string owlClassForObject(CKeyValuePair *ckvpObject);  
   virtual string nodeIDPrefix(CNode* ndInQuestion, string strProposition);
   

@@ -199,10 +199,7 @@ string CExporterOwl::generateClassDefinitions() {
 
 string CExporterOwl::nodeIDPrefix(CNode* ndInQuestion, string strProposition) {
   string strPrefix = CExporter::nodeIDPrefix(ndInQuestion, strProposition);
-  
-  if(ndInQuestion->title() == "WITH-DESIGNATORS") {
-    strPrefix = "with_designators_";
-  }
+  strPrefix = this->owlClassForNode(ndInQuestion, true) + "_";
   
   return strPrefix;
 }
@@ -555,13 +552,14 @@ string CExporterOwl::generateTimepointIndividuals(string strNamespace) {
   return strDot;
 }
 
-string CExporterOwl::owlClassForNode(CNode *ndNode) {
+string CExporterOwl::owlClassForNode(CNode *ndNode, bool bClassOnly) {
   string strName = ndNode->title();
-  string strReturnvalue = "&knowrob;CRAMAction";
+  string strPrefix = "&knowrob;";
+  string strClass = "CRAMAction";
   
   if(strName == "WITH-DESIGNATORS") {
     // Is this right? Or is there a more fitting type for that?
-    strReturnvalue = "&knowrob;WithDesignators";
+    strClass = "WithDesignators";
   } else if(strName.substr(0, 5) == "GOAL-") {
     // This is a goal definition.
     string strGoal = strName.substr(5);
@@ -574,41 +572,41 @@ string CExporterOwl::owlClassForNode(CNode *ndNode) {
      */
     
     if(strGoal == "PERCEIVE-OBJECT") {
-      strReturnvalue = "&knowrob;Perceive";
+      strClass = "Perceive";
     } else if(strGoal == "ACHIEVE") {
-      strReturnvalue = "&knowrob;Achieve";
+      strClass = "Achieve";
     } else if(strGoal == "PERFORM") { // Should go into another structure (?)
-      strReturnvalue = "&knowrob;Perform";
+      strClass = "Perform";
     } else if(strGoal == "MONITOR-ACTION") {
-      strReturnvalue = "&knowrob;Monitor";
+      strClass = "Monitor";
     } else if(strGoal == "PERFORM-ON-PROCESS-MODULE") {
-      strReturnvalue = "&knowrob;PerformOnProcessModule";
+      strClass = "PerformOnProcessModule";
     } else {
-      strReturnvalue = "&knowrob;DeclarativeGoal";
+      strClass = "DeclarativeGoal";
     }
   } else if(strName.substr(0, 8) == "RESOLVE-") {
     // This is a designator resolution.
     string strDesigType = strName.substr(8);
     
     if(strDesigType == "LOCATION-DESIGNATOR") {
-      strReturnvalue = "&knowrob;ResolveLocationDesignator";
+      strClass = "ResolveLocationDesignator";
     } else if(strDesigType == "ACTION-DESIGNATOR") {
-      strReturnvalue = "&knowrob;ResolveActionDesignator";
+      strClass = "ResolveActionDesignator";
     }
   } else if(strName.substr(0, 21) == "REPLACEABLE-FUNCTION-") {
     // This is an internal function name
     string strFunction = strName.substr(21);
     
     if(strFunction == "NAVIGATE") {
-      strReturnvalue = "&knowrob;Navigate";
+      strClass = "Navigate";
     }
   } else if(strName == "UIMA-PERCEIVE") {
-    strReturnvalue = "&knowrob;VisualPerception";
+    strClass = "VisualPerception";
   } else if(strName == "AT-LOCATION") {
-    strReturnvalue = "&knowrob;AtLocation";
+    strClass = "AtLocation";
   }
   
-  return strReturnvalue;
+  return (bClassOnly ? "" : strPrefix) + strClass;
 }
 
 bool CExporterOwl::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
