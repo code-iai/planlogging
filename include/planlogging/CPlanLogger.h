@@ -58,6 +58,7 @@ class CPlanLogger {
   
   void configureExporter(CExporter *expConfigure);
   
+  string getDesignatorID(string strMemoryAddress);
   string getUniqueDesignatorID(string strMemoryAddress);
   void equateDesignators(string strMAChild, string strMAParent);
 };

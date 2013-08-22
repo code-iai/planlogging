@@ -261,7 +261,7 @@ void CPlanLogger::equateDesignators(string strMAChild, string strMAParent) {
   m_lstDesignatorEquationTimes.push_back(make_pair(strIDChild, stsTimeEquate.str()));
 }
 
-string CPlanLogger::getUniqueDesignatorID(string strMemoryAddress) {
+string CPlanLogger::getDesignatorID(string strMemoryAddress) {
   string strID = "";
   
   for(list< pair<string, string> >::iterator itPair = m_lstDesignatorIDs.begin();
@@ -274,6 +274,12 @@ string CPlanLogger::getUniqueDesignatorID(string strMemoryAddress) {
       break;
     }
   }
+  
+  return strID;
+}
+
+string CPlanLogger::getUniqueDesignatorID(string strMemoryAddress) {
+  string strID = this->getDesignatorID(strMemoryAddress);
   
   if(strID == "") {
     strID = this->generateRandomIdentifier("designator_", 14);

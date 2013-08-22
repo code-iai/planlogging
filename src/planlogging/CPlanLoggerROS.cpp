@@ -211,11 +211,13 @@ bool CPlanLoggerROS::serviceCallbackAlterNode(designator_integration_msgs::Desig
 	  string strMemAddr = desigRequest->stringValue("memory-address");
 	  list<CKeyValuePair*> lstDescription = ckvpDesc->children();
 	  
+	  bool bDesigExists = (this->getDesignatorID(strMemAddr) != "");
 	  string strUniqueID = this->getUniqueDesignatorID(strMemAddr);
 	  
 	  this->activeNode()->addDesignator(strType, lstDescription, strUniqueID);
 	  ROS_INFO("Added '%s' designator (addr=%s) to active node (id %d): '%s'", strType.c_str(), strMemAddr.c_str(), this->activeNode()->id(), strUniqueID.c_str());
 	  desigResponse->setValue("id", strUniqueID);
+	  desigResponse->setValue(string("is-new"), (bDesigExists ? 0.0 : 1.0));
 	  
 	  bReturnvalue = true;
 	} else {
