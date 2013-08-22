@@ -576,13 +576,13 @@ string CExporterOwl::owlClassForNode(CNode *ndNode, bool bClassOnly) {
      */
     
     if(strGoal == "PERCEIVE-OBJECT") {
-      strClass = "Perceive";
+      strClass = "CRAMPerceive";
     } else if(strGoal == "ACHIEVE") {
-      strClass = "Achieve";
+      strClass = "CRAMAchieve";
     } else if(strGoal == "PERFORM") { // Should go into another structure (?)
-      strClass = "Perform";
+      strClass = "CRAMPerform";
     } else if(strGoal == "MONITOR-ACTION") {
-      strClass = "Monitor";
+      strClass = "CRAMMonitor";
     } else if(strGoal == "PERFORM-ON-PROCESS-MODULE") {
       strClass = "PerformOnProcessModule";
     } else {
@@ -603,6 +603,13 @@ string CExporterOwl::owlClassForNode(CNode *ndNode, bool bClassOnly) {
     
     if(strFunction == "NAVIGATE") {
       strClass = "Navigate";
+    }
+  } else if(strName.substr(0, 8) == "PERFORM-") {
+    // This is the performance of probably a designator
+    string strPerformer = strName.substr(8);
+    
+    if(strPerformer == "ACTION-DESIGNATOR") {
+      strClass = "PerformActionDesignator"; // Added
     }
   } else if(strName == "UIMA-PERCEIVE") {
     strClass = "VisualPerception";
