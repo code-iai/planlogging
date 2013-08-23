@@ -82,6 +82,8 @@ string CExporterOwl::generatePropertyDefinitions() {
   lstProperties.push_back("&knowrob;designator");
   lstProperties.push_back("&knowrob;equationTime");
   lstProperties.push_back("&knowrob;successorDesignator");
+  lstProperties.push_back("&knowrob;taskContext");
+  lstProperties.push_back("&knowrob;goalContext");
   
   for(list<string>::iterator itProperty = lstProperties.begin();
       itProperty != lstProperties.end();
