@@ -288,7 +288,7 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
       
 	  stringstream sts;
 	  sts << ndCurrent->uniqueID() << "_object_" << unIndex;
-      
+	  
 	  if(strOwlClass == "&knowrob;VisualPerception") {
 	    strDot += "        <knowrob:detectedObject rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
 	  } else {
@@ -471,8 +471,10 @@ string CExporterOwl::generateObjectIndividualsForNodes(list<CNode*> lstNodes, st
 	stringstream sts;
 	sts << ndCurrent->uniqueID() << "_object_" << unIndex;
 	
+	string strDesignatorID = ckvpObject->stringValue("__id");
 	string strOwlClass = this->owlClassForObject(ckvpObject);
-	strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
+	strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
+	strDot += "        <knowrob:designator rdf:resource=\"&" + strNamespace + ";" + strDesignatorID + "\"/>\n";
 	strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
 	strDot += "    </owl:namedIndividual>\n\n";
       }

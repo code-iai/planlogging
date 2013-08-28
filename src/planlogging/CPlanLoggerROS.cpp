@@ -175,11 +175,19 @@ bool CPlanLoggerROS::serviceCallbackAlterNode(designator_integration_msgs::Desig
       CKeyValuePair *ckvpDesc = desigRequest->childForKey("DESCRIPTION");
       
       if(ckvpDesc) {
-	list<CKeyValuePair*> lstDesc = ckvpDesc->children();
-	
 	if(this->activeNode()) {
-	  this->activeNode()->addObject(lstDesc);
-	  ROS_INFO("Added object to active node (id %d).", this->activeNode()->id());
+	  string strType = desigRequest->stringValue("type");
+	  string strMemAddr = desigRequest->stringValue("memory-address");
+	  
+	  bool bDesigExists = (this->getDesignatorID(strMemAddr) != "");
+	  string strUniqueID = this->getUniqueDesignatorID(strMemAddr);
+	  
+	  ckvpDesc->setValue("__id", strUniqueID);
+	  this->activeNode()->addObject(ckvpDesc->children());
+	  ROS_INFO("Added object (%s) to active node (id %d).", strUniqueID.c_str(), this->activeNode()->id());
+	  
+	  desigResponse->setValue("id", strUniqueID);
+	  desigResponse->setValue(string("is-new"), (bDesigExists ? 0.0 : 1.0));
 	  
 	  bReturnvalue = true;
 	} else {
