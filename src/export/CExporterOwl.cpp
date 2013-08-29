@@ -347,7 +347,7 @@ string CExporterOwl::generateEventIndividuals(string strNamespace) {
 }
 
 string CExporterOwl::owlClassForObject(CKeyValuePair *ckvpObject) {
-  return "&knowrob;Thing";
+  return "&knowrob;HumanScaleObject";
 }
 
 string CExporterOwl::generateFailureIndividualsForNodes(list<CNode*> lstNodes, string strNamespace) {
