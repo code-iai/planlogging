@@ -242,9 +242,18 @@ bool CPlanLoggerROS::serviceCallbackAlterNode(designator_integration_msgs::Desig
 	if(this->activeNode()) {
 	  this->equateDesignators(strMemAddrChild, strMemAddrParent);
 	  
-	  string strChildID = this->getDesignatorID(strMemAddrChild);
-	  string strParentID = this->getDesignatorID(strMemAddrParent);
+	  bool bChildDesigExists = (this->getDesignatorID(strMemAddrChild) != "");
+	  string strChildID = this->getUniqueDesignatorID(strMemAddrChild);
+	  
+	  bool bParentDesigExists = (this->getDesignatorID(strMemAddrParent) != "");
+	  string strParentID = this->getUniqueDesignatorID(strMemAddrParent);
+	  
 	  ROS_INFO("Equated designators '%s' (parent) and '%s' (child).", strParentID.c_str(), strChildID.c_str());
+	  
+	  desigResponse->setValue("id-child", strChildID);
+	  desigResponse->setValue(string("is-new-child"), (bChildDesigExists ? 0.0 : 1.0));
+	  desigResponse->setValue("id-parent", strParentID);
+	  desigResponse->setValue(string("is-new-parent"), (bParentDesigExists ? 0.0 : 1.0));
 	  
 	  bReturnvalue = true;
 	} else {
