@@ -73,8 +73,8 @@ string CExporterOwl::generatePropertyDefinitions() {
   list<string> lstProperties;
   lstProperties.push_back("&knowrob;startTime");
   lstProperties.push_back("&knowrob;endTime");
-  lstProperties.push_back("&knowrob;preEvent");
-  lstProperties.push_back("&knowrob;postEvent");
+  lstProperties.push_back("&knowrob;previousEvent");
+  lstProperties.push_back("&knowrob;nextEvent");
   lstProperties.push_back("&knowrob;subAction");
   lstProperties.push_back("&knowrob;detectedObject");
   lstProperties.push_back("&knowrob;objectActedOn");
@@ -191,7 +191,7 @@ string CExporterOwl::generateClassDefinitions() {
   string strDot = "    <!-- Class Definitions -->\n\n";
   
   list<string> lstClasses = this->gatherClassesForNodes(this->nodes());
-  lstClasses.push_back("&knowrob;Timepoint");
+  lstClasses.push_back("&knowrob;TimePoint");
   
   for(list<string>::iterator itClass = lstClasses.begin();
       itClass != lstClasses.end();
@@ -260,14 +260,14 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
       }
     
       if(ndLastDisplayed) {
-	strDot += "        <knowrob:preEvent rdf:resource=\"&" + strNamespace + ";" + ndLastDisplayed->uniqueID() + "\"/>\n";
+	strDot += "        <knowrob:previousEvent rdf:resource=\"&" + strNamespace + ";" + ndLastDisplayed->uniqueID() + "\"/>\n";
       }
       
       list<CNode*>::iterator itPostEvent = itNode;
       itPostEvent++;
       while(itPostEvent != lstNodes.end()) {
 	if(this->nodeDisplayable(*itPostEvent)) {
-	  strDot += "        <knowrob:postEvent rdf:resource=\"&" + strNamespace + ";" + (*itPostEvent)->uniqueID() + "\"/>\n";
+	  strDot += "        <knowrob:nextEvent rdf:resource=\"&" + strNamespace + ";" + (*itPostEvent)->uniqueID() + "\"/>\n";
 	  break;
 	}
 	
