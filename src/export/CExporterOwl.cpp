@@ -327,7 +327,21 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
 	    itDesignator++, unIndex++) {
 	  CKeyValuePair *ckvpDesignator = *itDesignator;
 	  
-	  strDot += "        <knowrob:designator rdf:resource=\"&" + strNamespace + ";" + ckvpDesignator->stringValue("id") + "\"/>\n";
+	  string strDesigPurpose;
+	  string strAnnotation = ckvpDesignator->stringValue("annotation");
+	  string strDesigID = ckvpDesignator->stringValue("id");
+	  
+	  if(strAnnotation == "perception-request") {
+	    strDesigPurpose = "perceptionRequest";
+	  } else if(strAnnotation == "perception-result") {
+	    strDesigPurpose = "perceptionResult";
+	  } else if(strAnnotation == "object-acted-on") {
+	    strDesigPurpose = "objectActedOn";
+	  } else {
+	    strDesigPurpose = "designator";
+	  }
+	  
+	  strDot += "        <knowrob:" + strDesigPurpose + " rdf:resource=\"&" + strNamespace + ";" + strDesigID + "\"/>\n";
 	}
       }
       
