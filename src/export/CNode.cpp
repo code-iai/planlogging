@@ -187,12 +187,13 @@ void CNode::addFailure(string strCondition, string strTimestamp) {
   ckvpFailure->setValue(string("time-fail"), strTimestamp);
 }
 
-void CNode::addDesignator(string strType, list<CKeyValuePair*> lstDescription, string strUniqueID) {
+void CNode::addDesignator(string strType, list<CKeyValuePair*> lstDescription, string strUniqueID, string strAnnotation) {
   CKeyValuePair* ckvpDesignator = this->addDescriptionListItem("designators", "designator");
   
   ckvpDesignator->setValue(string("type"), strType);
   // TODO(winkler): Add description here!
   ckvpDesignator->setValue(string("id"), strUniqueID);
+  ckvpDesignator->setValue(string("annotation"), strAnnotation);
 }
 
 void CNode::setSuccess(bool bSuccess) {
