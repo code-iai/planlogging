@@ -337,6 +337,8 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
 	    strDesigPurpose = "perceptionResult";
 	  } else if(strAnnotation == "object-acted-on") {
 	    strDesigPurpose = "objectActedOn";
+	  } else if(strAnnotation == "putdown-location") {
+	    strDesigPurpose = "putdownLocation";
 	  } else {
 	    strDesigPurpose = "designator";
 	  }
