@@ -632,6 +632,8 @@ string CExporterOwl::owlClassForNode(CNode *ndNode, bool bClassOnly) {
     strClass = "VisualPerception";
   } else if(strName == "AT-LOCATION") {
     strClass = "AtLocation";
+  } else if(strName == "VOLUNTARY-BODY-MOVEMENT") {
+    strClass = "VoluntaryBodyMovement";
   }
   
   return (bClassOnly ? "" : strPrefix) + strClass;
