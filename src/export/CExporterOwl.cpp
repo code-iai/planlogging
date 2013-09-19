@@ -339,6 +339,8 @@ string CExporterOwl::generateEventIndividualsForNodes(list<CNode*> lstNodes, str
 	    strDesigPurpose = "objectActedOn";
 	  } else if(strAnnotation == "putdown-location") {
 	    strDesigPurpose = "putdownLocation";
+	  } else if(strAnnotation == "voluntary-movement-details") {
+	    strDesigPurpose = "voluntaryMovementDetails";
 	  } else {
 	    strDesigPurpose = "designator";
 	  }
