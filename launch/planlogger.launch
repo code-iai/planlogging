@@ -1,3 +1,0 @@
-<launch>
-  <node pkg="planlogger" name="planlogger" type="planlogger" launch-prefix="gdb -ex run --args" />
-</launch>
