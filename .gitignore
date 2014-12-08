@@ -1,9 +1,0 @@
-bin
-build
-lib
-*~
-experiments
-results
-packaging
-documentation
-Doxyfile
